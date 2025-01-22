@@ -40,7 +40,13 @@ public class BotController(ILogger<BotController> logger) : ControllerBase
         [FromServices] UpdateHandler handleUpdateService, 
         CancellationToken ct)
     {
-        if (Request.Headers["X-Telegram-Bot-Api-Secret-Token"] != Utils.AccessToken)
+        foreach (var header in Request.Headers)
+        {
+            logger.LogInformation("Key: {Key}, value: {Value}", header.Key, header.Value);
+        }
+        logger.LogInformation("Acc length: {Length}", Utils.AccessToken.Length);
+        
+        if (!string.Equals(Request.Headers["X-Telegram-Bot-Api-Secret-Token"], Utils.AccessToken))
         {
             logger.LogInformation("Bot Secret Token is missing, Forbidden");
             return StatusCode(403);

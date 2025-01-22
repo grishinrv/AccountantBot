@@ -4,6 +4,7 @@ services:
     pull_policy: never
     environment:
       TELEGRAM_ACCESS_TOKEN: ${TELEGRAM_ACCESS_TOKEN}
+      ACCOUNTANT_BOT_ACCESS_TOKEN: ${ACCOUNTANT_BOT_ACCESS_TOKEN}
       ALLOWED_USERS: ${ALLOWED_USERS}
       HOST_DOMAIN: ${HOST_DOMAIN}
     restart: unless-stopped

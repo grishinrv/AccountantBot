@@ -1,7 +1,10 @@
 using Bot.Settings;
+using Bot.TelegramUtils;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Bot.Services;
 
@@ -33,7 +36,7 @@ public sealed class UpdateHandler
         {
             { Message: { } message }                        => OnMessage(message),
             // { EditedMessage: { } message }                  => OnMessage(message),
-            // { CallbackQuery: { } callbackQuery }            => OnCallbackQuery(callbackQuery),
+            { CallbackQuery: { } callbackQuery }            => OnCallbackQuery(callbackQuery),
             // { InlineQuery: { } inlineQuery }                => OnInlineQuery(inlineQuery),
             // { ChosenInlineResult: { } chosenInlineResult }  => OnChosenInlineResult(chosenInlineResult),
             // { Poll: { } poll }                              => OnPoll(poll),
@@ -46,13 +49,57 @@ public sealed class UpdateHandler
         });
     }
 
-    private Task OnMessage(Message msg)
+    private Task OnCallbackQuery(CallbackQuery callbackQuery)
+    {
+        _logger.LogInformation("OnCallbackQuery: {CallbackQuery}", callbackQuery.Data);
+        return Task.CompletedTask;
+    }
+
+    private async Task OnMessage(Message msg)
     {
         _logger.LogInformation("Receive message type: {MessageType}, from: {From}", msg.Type, msg.From);
 
-        if (!Utils.AllowedUsersIds.Contains(msg.From?.Id ?? 0))
+        var fromId = msg.From?.Id ?? 0;
+        if (!Utils.AllowedUsersIds.Contains(fromId))
         {
             _logger.LogInformation("Not allowed user");
+        }
+        else
+        {
+            await _bot.SendMessage(
+                chatId: fromId,
+                "Hur kan jag hjälpa?",
+                parseMode: ParseMode.Html,
+                replyMarkup: InlineKeyboardFactory.Create(
+                    new InlineKeyboardButton
+                    {
+                        Text = "Ny post",
+                        // Url = null,
+                        CallbackData = "MY CALLBACK DATA",
+                        // WebApp = null,
+                        // LoginUrl = null,
+                        // SwitchInlineQuery = null,
+                        // SwitchInlineQueryCurrentChat = null,
+                        // SwitchInlineQueryChosenChat = null,
+                        // CopyText = null,
+                        // CallbackGame = null,
+                        Pay = false
+                    },
+                    new InlineKeyboardButton
+                    {
+                        Text = "TEST",
+                        // Url = null,
+                        CallbackData = "000",
+                        // WebApp = null,
+                        // LoginUrl = null,
+                        // SwitchInlineQuery = null,
+                        // SwitchInlineQueryCurrentChat = null,
+                        // SwitchInlineQueryChosenChat = null,
+                        // CopyText = null,
+                        // CallbackGame = null,
+                        Pay = false
+                    }
+                ));
         }
         
         // if (msg.Text is not { } messageText)
@@ -66,7 +113,6 @@ public sealed class UpdateHandler
         //     msg.Chat.Title ?? "<Title_null>",
         //     msg.Chat.Id);
         
-        return Task.CompletedTask;
 
         // Message sentMessage = await (messageText.Split(' ')[0] switch
         // {

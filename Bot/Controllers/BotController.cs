@@ -14,7 +14,7 @@ public class BotController(ILogger<BotController> logger) : ControllerBase
     [HttpGet("setWebhook")]
     public async Task<IActionResult> SetWebHook([FromServices] TelegramBotClient bot, CancellationToken ct)
     {
-        var allowedMessages= new []{ UpdateType.Message, UpdateType.ChannelPost };
+        var allowedMessages= new []{ UpdateType.Message, UpdateType.CallbackQuery };
         var webhookUrl = new Uri(Utils.WebHookUrl).AbsoluteUri;
         
         logger.LogDebug("Setting webhook for {Url}", webhookUrl);

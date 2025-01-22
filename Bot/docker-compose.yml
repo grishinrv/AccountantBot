@@ -1,0 +1,25 @@
+services:
+  acc_bot:
+    image: "acc/bot:telegram"
+    pull_policy: never
+    environment:
+      TELEGRAM_ACCESS_TOKEN: ${TELEGRAM_ACCESS_TOKEN}
+      ALLOWED_USERS: ${ALLOWED_USERS}
+      HOST_DOMAIN: ${HOST_DOMAIN}
+    restart: unless-stopped
+    networks:
+      - proxy_bot-network
+    volumes:
+      - ./:/app/publish
+      - acc_bot_storage:/app/localstorage
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+networks:
+  proxy_bot-network:
+    external: true
+    
+volumes:
+  acc_bot_storage:

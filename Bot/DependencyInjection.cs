@@ -11,7 +11,7 @@ public static class DependencyInjection
     {
         services.AddHttpClient("tgwebhook")
             .RemoveAllLoggers()
-            .AddTypedClient(httpClient => new TelegramBotClient(Utils.AccessToken, httpClient));
+            .AddTypedClient(httpClient => new TelegramBotClient(Utils.TelegramAccessToken, httpClient));
         
         services
             .AddControllers();

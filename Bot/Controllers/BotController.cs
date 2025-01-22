@@ -24,7 +24,8 @@ public class BotController(ILogger<BotController> logger) : ControllerBase
             await bot.SetWebhook(
                 url: webhookUrl, 
                 allowedUpdates: allowedMessages, 
-                cancellationToken: ct);
+                cancellationToken: ct,
+                secretToken: Utils.AccessToken);
         }
         catch (Exception e)
         {
@@ -40,12 +41,6 @@ public class BotController(ILogger<BotController> logger) : ControllerBase
         [FromServices] UpdateHandler handleUpdateService, 
         CancellationToken ct)
     {
-        foreach (var header in Request.Headers)
-        {
-            logger.LogInformation("Key: {Key}, value: {Value}", header.Key, header.Value);
-        }
-        logger.LogInformation("Acc length: {Length}", Utils.AccessToken.Length);
-        
         if (!string.Equals(Request.Headers["X-Telegram-Bot-Api-Secret-Token"], Utils.AccessToken))
         {
             logger.LogInformation("Bot Secret Token is missing, Forbidden");

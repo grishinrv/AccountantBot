@@ -31,13 +31,13 @@ public sealed class UpdateHandler
         await (update switch
         {
             { Message: { } message }                        => OnMessage(message),
-            { EditedMessage: { } message }                  => OnMessage(message),
+            // { EditedMessage: { } message }                  => OnMessage(message),
             // { CallbackQuery: { } callbackQuery }            => OnCallbackQuery(callbackQuery),
             // { InlineQuery: { } inlineQuery }                => OnInlineQuery(inlineQuery),
             // { ChosenInlineResult: { } chosenInlineResult }  => OnChosenInlineResult(chosenInlineResult),
             // { Poll: { } poll }                              => OnPoll(poll),
             // { PollAnswer: { } pollAnswer }                  => OnPollAnswer(pollAnswer),
-            { ChannelPost: {} message } => OnMessage(message),
+            // { ChannelPost: {} message } => OnMessage(message),
             // UpdateType.EditedChannelPost:
             // UpdateType.ShippingQuery:
             // UpdateType.PreCheckoutQuery:
@@ -47,17 +47,17 @@ public sealed class UpdateHandler
 
     private Task OnMessage(Message msg)
     {
-        _logger.LogDebug("Receive message type: {MessageType}", msg.Type);
-        if (msg.Text is not { } messageText)
-            return Task.CompletedTask;
-    
-        _logger.LogDebug("Message text: {MessageText}, sender: {Sender}", 
-            msg.Text, 
-            msg.Contact?.UserId.ToString() ?? "<Contact_null>");
-        
-        _logger.LogDebug("Update, sender chat - {ChatTitle}, id - {ChatId}", 
-            msg.Chat.Title ?? "<Title_null>",
-            msg.Chat.Id);
+        _logger.LogInformation("Receive message type: {MessageType}, from: {From}, sender id: {Id}", msg.Type, msg.From, msg.From?.Id.ToString() ?? "<null>");
+        // if (msg.Text is not { } messageText)
+        //     return Task.CompletedTask;
+        //
+        // _logger.LogDebug("Message text: {MessageText}, sender: {Sender}", 
+        //     msg.Text, 
+        //     msg.Contact?.UserId.ToString() ?? "<Contact_null>");
+        //
+        // _logger.LogDebug("Update, sender chat - {ChatTitle}, id - {ChatId}", 
+        //     msg.Chat.Title ?? "<Title_null>",
+        //     msg.Chat.Id);
         
         return Task.CompletedTask;
 

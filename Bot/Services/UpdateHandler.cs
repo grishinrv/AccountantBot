@@ -1,3 +1,4 @@
+using Bot.Settings;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
@@ -47,7 +48,13 @@ public sealed class UpdateHandler
 
     private Task OnMessage(Message msg)
     {
-        _logger.LogInformation("Receive message type: {MessageType}, from: {From}, sender id: {Id}", msg.Type, msg.From, msg.From?.Id.ToString() ?? "<null>");
+        _logger.LogInformation("Receive message type: {MessageType}, from: {From}", msg.Type, msg.From);
+
+        if (!Utils.AllowedUsersIds.Contains(msg.From?.Id ?? 0))
+        {
+            _logger.LogInformation("Not allowed user");
+        }
+        
         // if (msg.Text is not { } messageText)
         //     return Task.CompletedTask;
         //

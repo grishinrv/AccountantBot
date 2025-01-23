@@ -12,9 +12,6 @@ public sealed class UpdateHandler
 {
     private readonly TelegramBotClient _bot;
     private readonly ILogger<UpdateHandler> _logger;
-    
-    // ny_kategori - Skapa en ny kategori
-    // ny_post - Registrera det förbrukade beloppet
 
     public UpdateHandler(TelegramBotClient bot, ILogger<UpdateHandler> logger)
     {

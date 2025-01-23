@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+using Bot.Models;
 using Bot.Settings;
 using Bot.TelegramUtils;
 using Telegram.Bot;
@@ -10,11 +12,17 @@ namespace Bot.Services;
 
 public sealed class UpdateHandler
 {
+    private readonly IServiceProvider _container;
     private readonly TelegramBotClient _bot;
     private readonly ILogger<UpdateHandler> _logger;
+    private readonly ConcurrentDictionary<string, IUserWorkflowManager> _userWorkflowManagers = new ();
     
-    public UpdateHandler(TelegramBotClient bot, ILogger<UpdateHandler> logger)
+    public UpdateHandler(
+        IServiceProvider container, 
+        TelegramBotClient bot, 
+        ILogger<UpdateHandler> logger)
     {
+        _container = container;
         _bot = bot;
         _logger = logger;
     }
@@ -49,41 +57,47 @@ public sealed class UpdateHandler
         });
     }
 
-    private Task OnCallbackQuery(CallbackQuery callbackQuery)
+    private async Task OnCallbackQuery(CallbackQuery callbackQuery)
     {
-        _logger.LogInformation("OnCallbackQuery: {CallbackQuery}", callbackQuery.Data);
-        return Task.CompletedTask;
-    }
+        _logger.LogInformation("OnCallbackQuery, data: {CallbackQuery}, id: {Id}", callbackQuery.Data, callbackQuery.Id);
 
-    private async Task OnMessage(Message msg)
-    {
-        _logger.LogInformation("Receive message type: {MessageType}, from: {From}", msg.Type, msg.From);
-
-        var userName= msg.From?.Username;
+        var userName = callbackQuery.From.Username!;
         if (!Utils.AllowedUsers.Contains(userName))
         {
             _logger.LogInformation("Not allowed user");
         }
         else
         {
-            await _bot.SendMessage(
-                chatId: msg.From!.Id,
-                "Hur kan jag hjälpa?",
-                parseMode: ParseMode.Html,
-                replyMarkup: InlineKeyboardFactory.Create(
-                    new InlineKeyboardButton
-                    {
-                        Text = "Ny post",
-                        CallbackData = "MY CALLBACK DATA",
-                        Pay = false
-                    },
-                    new InlineKeyboardButton
-                    {
-                        Text = "TEST",
-                        CallbackData = "000",
-                        Pay = false
-                    }
-                ));
+            var userManager = _container.GetKeyedService<IUserWorkflowManager>(userName)!;
+
+            await userManager.HandleInput(new CommandContext
+            {
+                UserName = userName,
+                ChatId = long.Parse(callbackQuery.Id),
+                LatestInputFromUser = callbackQuery.Data!
+            });
+        }
+    }
+
+    private async Task OnMessage(Message msg)
+    {
+        _logger.LogInformation("Receive message type: {MessageType}, from: {From}", msg.Type, msg.From);
+
+        var userName = msg.From?.Username!;
+        if (!Utils.AllowedUsers.Contains(userName))
+        {
+            _logger.LogInformation("Not allowed user");
+        }
+        else
+        {
+            var userManager = _container.GetKeyedService<IUserWorkflowManager>(userName)!;
+
+            await userManager.HandleInput(new CommandContext
+            {
+                UserName = userName,
+                ChatId = msg.Chat.Id,
+                LatestInputFromUser = msg.Text!
+            });
         }
     }
 

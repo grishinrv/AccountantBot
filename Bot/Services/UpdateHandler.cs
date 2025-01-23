@@ -12,7 +12,7 @@ public sealed class UpdateHandler
 {
     private readonly TelegramBotClient _bot;
     private readonly ILogger<UpdateHandler> _logger;
-
+    
     public UpdateHandler(TelegramBotClient bot, ILogger<UpdateHandler> logger)
     {
         _bot = bot;
@@ -59,75 +59,32 @@ public sealed class UpdateHandler
     {
         _logger.LogInformation("Receive message type: {MessageType}, from: {From}", msg.Type, msg.From);
 
-        var fromId = msg.From?.Id ?? 0;
-        if (!Utils.AllowedUsersIds.Contains(fromId))
+        var userName= msg.From?.Username;
+        if (!Utils.AllowedUsers.Contains(userName))
         {
             _logger.LogInformation("Not allowed user");
         }
         else
         {
             await _bot.SendMessage(
-                chatId: fromId,
+                chatId: msg.From!.Id,
                 "Hur kan jag hjälpa?",
                 parseMode: ParseMode.Html,
                 replyMarkup: InlineKeyboardFactory.Create(
                     new InlineKeyboardButton
                     {
                         Text = "Ny post",
-                        // Url = null,
                         CallbackData = "MY CALLBACK DATA",
-                        // WebApp = null,
-                        // LoginUrl = null,
-                        // SwitchInlineQuery = null,
-                        // SwitchInlineQueryCurrentChat = null,
-                        // SwitchInlineQueryChosenChat = null,
-                        // CopyText = null,
-                        // CallbackGame = null,
                         Pay = false
                     },
                     new InlineKeyboardButton
                     {
                         Text = "TEST",
-                        // Url = null,
                         CallbackData = "000",
-                        // WebApp = null,
-                        // LoginUrl = null,
-                        // SwitchInlineQuery = null,
-                        // SwitchInlineQueryCurrentChat = null,
-                        // SwitchInlineQueryChosenChat = null,
-                        // CopyText = null,
-                        // CallbackGame = null,
                         Pay = false
                     }
                 ));
         }
-        
-        // if (msg.Text is not { } messageText)
-        //     return Task.CompletedTask;
-        //
-        // _logger.LogDebug("Message text: {MessageText}, sender: {Sender}", 
-        //     msg.Text, 
-        //     msg.Contact?.UserId.ToString() ?? "<Contact_null>");
-        //
-        // _logger.LogDebug("Update, sender chat - {ChatTitle}, id - {ChatId}", 
-        //     msg.Chat.Title ?? "<Title_null>",
-        //     msg.Chat.Id);
-        
-
-        // Message sentMessage = await (messageText.Split(' ')[0] switch
-        // {
-        //     "/photo" => SendPhoto(msg),
-        //     "/inline_buttons" => SendInlineKeyboard(msg),
-        //     "/keyboard" => SendReplyKeyboard(msg),
-        //     "/remove" => RemoveKeyboard(msg),
-        //     "/request" => RequestContactAndLocation(msg),
-        //     "/inline_mode" => StartInlineQuery(msg),
-        //     "/poll" => SendPoll(msg),
-        //     "/poll_anonymous" => SendAnonymousPoll(msg),
-        //     "/throw" => FailingHandler(msg),
-        //     _ => Usage(msg)
-        // });
-        // _logger.LogInformation("The message was sent with id: {SentMessageId}", sentMessage.MessageId);
     }
 
     // async Task<Message> Usage(Message msg)

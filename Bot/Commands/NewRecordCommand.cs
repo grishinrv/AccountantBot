@@ -10,9 +10,4 @@ public sealed class NewRecordCommand : CommandBase
     public const string COMMAND_NAME =  "/ny_post";
     
     public override string Name => COMMAND_NAME;
-
-    public NewRecordCommand()
-    {
-        
-    }
 }

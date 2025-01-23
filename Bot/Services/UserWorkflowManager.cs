@@ -8,9 +8,12 @@ public sealed class UserWorkflowManager : IUserWorkflowManager
 
     public CommandBase CurrentCommand { get; set; }
 
-    public UserWorkflowManager(string userName)
+    public UserWorkflowManager(string userName, IServiceProvider serviceProvider)
     {
         UserName = userName;
+        var command = new RootCommand();
+        command.Initialize(serviceProvider);
+        CurrentCommand = command;
     }
 
     public void HandleInput(string text)

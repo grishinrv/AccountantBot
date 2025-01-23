@@ -8,10 +8,9 @@ namespace Bot.Commands;
 public sealed class NewCategoryCommand : CommandBase
 {
     public const string COMMAND_NAME =  "/ny_kategori";
-    
     public override string Name => COMMAND_NAME;
 
-    public NewCategoryCommand()
+    protected override void DefaultAction(IUserWorkflowManager manager, string userInput)
     {
     }
 }

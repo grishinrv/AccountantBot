@@ -81,7 +81,7 @@ public sealed class UpdateHandler
 
     private async Task OnMessage(Message msg)
     {
-        _logger.LogInformation("Receive message type: {MessageType}, from: \"{From}\"", msg.Type, msg.From!.Username);
+        _logger.LogInformation("Receive message type: {MessageType}, from: \"{From}\"", msg.Type, msg.From!);
 
         var userName = msg.From?.Username!;
         if (!Utils.AllowedUsers.Contains(userName))

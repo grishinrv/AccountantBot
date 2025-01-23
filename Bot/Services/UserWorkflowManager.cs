@@ -1,4 +1,5 @@
 using Bot.Commands;
+using Bot.Models;
 
 namespace Bot.Services;
 
@@ -16,8 +17,8 @@ public sealed class UserWorkflowManager : IUserWorkflowManager
         CurrentCommand = command;
     }
 
-    public async Task HandleInput(string text)
+    public async Task HandleInput(CommandContext context)
     {
-        await CurrentCommand.Handle(this, text);
+        await CurrentCommand.Handle(this, context);
     }
 }

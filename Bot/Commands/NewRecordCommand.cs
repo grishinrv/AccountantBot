@@ -1,5 +1,3 @@
-using Bot.Services;
-
 namespace Bot.Commands;
 
 /// <summary>

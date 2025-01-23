@@ -16,8 +16,8 @@ public sealed class UserWorkflowManager : IUserWorkflowManager
         CurrentCommand = command;
     }
 
-    public void HandleInput(string text)
+    public async Task HandleInput(string text)
     {
-        CurrentCommand.Handle(this, text);
+        await CurrentCommand.Handle(this, text);
     }
 }

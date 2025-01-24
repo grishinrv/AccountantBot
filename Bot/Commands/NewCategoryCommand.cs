@@ -37,7 +37,7 @@ public sealed class NewCategoryCommand : CommandBase
     protected override async Task DefaultAction(CommandContext context)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
-        var outPut = string.Empty;
+        string outPut;
         var category = dbContext.Categories.FirstOrDefault(c => c.Name == context.LatestInputFromUser);
         if (category == null)
         {

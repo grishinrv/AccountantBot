@@ -7,7 +7,21 @@ public sealed class UserWorkflowManager : IUserWorkflowManager
 {
     private readonly ILogger<UserWorkflowManager> _logger;
     public string UserName { get; }
-    public CommandBase CurrentCommand { get; set; }
+    
+    private CommandBase _currentCommand;
+
+    public CommandBase CurrentCommand
+    {
+        get => _currentCommand;
+        set
+        {
+            if (_currentCommand != value)
+            {
+                _logger.LogDebug("Changing current command to \"{Command}\"", value.GetType().Name);
+                _currentCommand = value;
+            }
+        }
+    }
 
     public UserWorkflowManager(
         ILogger<UserWorkflowManager> logger,

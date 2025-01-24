@@ -7,4 +7,6 @@ public class AccountantDbContext : DbContext
 {
     public DbSet<Category> Categories { get; set; }
     public DbSet<Purchase> Purchases { get; set; }
+    
+    public AccountantDbContext(DbContextOptions<AccountantDbContext> options) : base(options) { }
 }

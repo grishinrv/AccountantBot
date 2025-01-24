@@ -1,5 +1,7 @@
 using Bot.Services;
 using Bot.Settings;
+using Bot.Storage;
+using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 
 namespace Bot;
@@ -23,14 +25,13 @@ public static class DependencyInjection
                         s,
                         k!.ToString()!));
         }
-        
-        services
-            .AddControllers();
 
-        services
-            .AddScoped<UpdateHandler>();
-        services
-            .ConfigureTelegramBotMvc();
+        services.AddDbContextFactory<AccountantDbContext>(options =>
+            options.UseSqlite("Data Source=accountant.db"));
+        
+        services.AddControllers();
+        services.AddScoped<UpdateHandler>();
+        services.ConfigureTelegramBotMvc();
 
         return services;
     }

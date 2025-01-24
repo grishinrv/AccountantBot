@@ -6,12 +6,12 @@ namespace Bot.Commands;
 public abstract class CommandBase
 {
     public abstract string Name { get; }
-    protected IServiceProvider Container { get; private set; } = null!;
-    protected Dictionary<string, Func<IUserWorkflowManager, CommandContext, Task>> Transitions { get; }
+    private IUserWorkflowManager _userWorkflowManager = null!;
+    protected Dictionary<string, Func<CommandContext, Task>> Transitions { get; }
 
-    public void Initialize(IServiceProvider serviceProvider)
+    public void Initialize(IUserWorkflowManager userWorkflowManager)
     {
-        Container = serviceProvider;
+        _userWorkflowManager = userWorkflowManager;
     }
 
     protected virtual Task OnInitializedAsync(CommandContext context)
@@ -21,7 +21,7 @@ public abstract class CommandBase
 
     protected CommandBase()
     {
-        Transitions = new Dictionary<string, Func<IUserWorkflowManager, CommandContext, Task>>
+        Transitions = new Dictionary<string, Func<CommandContext, Task>>
         {
             { RootCommand.COMMAND_NAME, SwitchCommand<RootCommand> },
             { NewCategoryCommand.COMMAND_NAME, SwitchCommand<NewCategoryCommand> },
@@ -29,26 +29,24 @@ public abstract class CommandBase
         };
     }
 
-    protected async Task SwitchCommand<T>(IUserWorkflowManager manager, CommandContext context) 
-        where T : CommandBase, new()
+    protected async Task SwitchCommand<T>(CommandContext context) 
+        where T : CommandBase
     {
-        var commandInstance = new T();
-        commandInstance.Initialize(Container);
-        manager.CurrentCommand = commandInstance;
+        var commandInstance = _userWorkflowManager.SwitchCommand<T>();
         await commandInstance.OnInitializedAsync(context);
     }
 
-    protected virtual Task DefaultAction(IUserWorkflowManager manager, CommandContext context)
+    protected virtual Task DefaultAction(CommandContext context)
     {
-        return SwitchCommand<RootCommand>(manager, context);
+        return SwitchCommand<RootCommand>(context);
     }
 
-    public async Task Handle(IUserWorkflowManager manager, CommandContext context)
+    public async Task Handle(CommandContext context)
     {
         if (!Transitions.TryGetValue(context.LatestInputFromUser, out var action))
         {
             action = DefaultAction;
         }
-        await action(manager, context);
+        await action(context);
     }
 }

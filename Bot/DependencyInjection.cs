@@ -1,3 +1,4 @@
+using Bot.Commands;
 using Bot.Services;
 using Bot.Settings;
 using Bot.Storage;
@@ -30,7 +31,11 @@ public static class DependencyInjection
             options.UseSqlite("Data Source=accountant.db"));
         
         services.AddControllers();
-        services.AddScoped<UpdateHandler>();
+        services
+            .AddScoped<UpdateHandler>()
+            .AddTransient<NewCategoryCommand>()
+            .AddTransient<RootCommand>()
+            .AddTransient<NewRecordCommand>();
         services.ConfigureTelegramBotMvc();
 
         return services;

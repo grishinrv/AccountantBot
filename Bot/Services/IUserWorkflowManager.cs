@@ -6,6 +6,6 @@ namespace Bot.Services;
 public interface IUserWorkflowManager
 {
      string UserName { get; }
-     CommandBase CurrentCommand { get; set; }
+     CommandBase SwitchCommand<T>() where T : CommandBase;
      Task HandleInput(CommandContext context);
 }

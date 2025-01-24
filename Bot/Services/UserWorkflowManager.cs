@@ -6,11 +6,12 @@ namespace Bot.Services;
 public sealed class UserWorkflowManager : IUserWorkflowManager
 {
     private readonly ILogger<UserWorkflowManager> _logger;
+    private readonly IServiceProvider _container;
     public string UserName { get; }
     
-    private CommandBase _currentCommand;
+    private CommandBase _currentCommand = null!;
 
-    public CommandBase CurrentCommand
+    private CommandBase CurrentCommand
     {
         get => _currentCommand;
         set
@@ -25,21 +26,31 @@ public sealed class UserWorkflowManager : IUserWorkflowManager
 
     public UserWorkflowManager(
         ILogger<UserWorkflowManager> logger,
-        IServiceProvider serviceProvider,
+        IServiceProvider container,
         string userName)
     {
         _logger = logger;
+        _container = container;
         UserName = userName;
-        var command = new RootCommand();
-        command.Initialize(serviceProvider);
+        var command = _container.GetRequiredService<RootCommand>();
+        command.Initialize(this);
         CurrentCommand = command;
     }
 
+    public CommandBase SwitchCommand<T>() 
+        where T : CommandBase
+    {
+        var commandInstance = _container.GetRequiredService<T>();
+        commandInstance.Initialize(this);
+        CurrentCommand = commandInstance;
+        return commandInstance;
+    }
+    
     public async Task HandleInput(CommandContext context)
     {
         _logger.LogDebug("Pass handling to \"{CurrentCommand}\" command, input: \"{InputText}\"", 
             CurrentCommand.GetType().Name,
             context.LatestInputFromUser);
-        await CurrentCommand.Handle(this, context);
+        await CurrentCommand.Handle(context);
     }
 }

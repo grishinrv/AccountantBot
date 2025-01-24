@@ -1,8 +1,8 @@
 using System.Text;
 using Bot.Models;
-using Bot.Services;
 using Bot.Storage;
 using Bot.TelegramUtils;
+using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -17,10 +17,19 @@ public sealed class NewCategoryCommand : CommandBase
     public const string COMMAND_NAME =  "/ny_kategori";
     public override string Name => COMMAND_NAME;
 
-    protected async override Task DefaultAction(IUserWorkflowManager manager, CommandContext context)
+    private readonly TelegramBotClient _bot;
+    private readonly IDbContextFactory<AccountantDbContext> _dbContextFactory;
+    public NewCategoryCommand(
+        TelegramBotClient bot, 
+        IDbContextFactory<AccountantDbContext> dbContextFactory)
     {
-        var bot = Container.GetRequiredService<TelegramBotClient>();
-        await using var dbContext = Container.GetRequiredService<AccountantDbContext>();
+        _bot = bot;
+        _dbContextFactory = dbContextFactory;
+    }
+    
+    protected override async Task DefaultAction(CommandContext context)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
         var outPut = string.Empty;
         var category = dbContext.Categories.FirstOrDefault(c => c.Name == context.LatestInputFromUser);
         if (category == null)
@@ -44,7 +53,7 @@ public sealed class NewCategoryCommand : CommandBase
                 .ToString();
         }
         
-        await bot.SendMessage(
+        await _bot.SendMessage(
             chatId: context.ChatId,
             text: outPut,
             parseMode: ParseMode.Html,

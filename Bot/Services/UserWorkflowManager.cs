@@ -23,7 +23,9 @@ public sealed class UserWorkflowManager : IUserWorkflowManager
 
     public async Task HandleInput(CommandContext context)
     {
-        _logger.LogDebug("Pass handling to \"{CurrentCommand}\" command", CurrentCommand.GetType().Name);
+        _logger.LogDebug("Pass handling to \"{CurrentCommand}\" command, input: \"{InputText}\"", 
+            CurrentCommand.GetType().Name,
+            context.LatestInputFromUser);
         await CurrentCommand.Handle(this, context);
     }
 }

@@ -14,6 +14,11 @@ public abstract class CommandBase
         Container = serviceProvider;
     }
 
+    protected virtual Task OnInitializedAsync(CommandContext context)
+    {
+        return Task.CompletedTask;
+    }
+
     protected CommandBase()
     {
         Transitions = new Dictionary<string, Func<IUserWorkflowManager, CommandContext, Task>>
@@ -24,19 +29,18 @@ public abstract class CommandBase
         };
     }
 
-    protected Task SwitchCommand<T>(IUserWorkflowManager manager, CommandContext context) 
+    protected async Task SwitchCommand<T>(IUserWorkflowManager manager, CommandContext context) 
         where T : CommandBase, new()
     {
         var commandInstance = new T();
         commandInstance.Initialize(Container);
         manager.CurrentCommand = commandInstance;
-        return Task.CompletedTask;
+        await commandInstance.OnInitializedAsync(context);
     }
 
     protected virtual Task DefaultAction(IUserWorkflowManager manager, CommandContext context)
     {
-        SwitchCommand<RootCommand>(manager, context);
-        return Task.CompletedTask;
+        return SwitchCommand<RootCommand>(manager, context);
     }
 
     public async Task Handle(IUserWorkflowManager manager, CommandContext context)

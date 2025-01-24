@@ -1,5 +1,6 @@
 using Bot.Models;
 using Bot.Services;
+using Telegram.Bot;
 
 namespace Bot.Commands;
 
@@ -8,6 +9,7 @@ public abstract class CommandBase
     protected const string BUTTON_CANCEL = "Abvoka";
     public abstract string Name { get; }
     private IUserWorkflowManager _userWorkflowManager = null!;
+    protected TelegramBotClient Bot { get; }
     protected Dictionary<string, Func<CommandContext, Task>> Transitions { get; }
 
     public void Initialize(IUserWorkflowManager userWorkflowManager)
@@ -20,8 +22,9 @@ public abstract class CommandBase
         return Task.CompletedTask;
     }
 
-    protected CommandBase()
+    protected CommandBase(TelegramBotClient bot)
     {
+        Bot = bot;
         Transitions = new Dictionary<string, Func<CommandContext, Task>>
         {
             { RootCommand.COMMAND_NAME, SwitchCommand<RootCommand> },

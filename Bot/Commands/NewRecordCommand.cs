@@ -1,3 +1,5 @@
+using Telegram.Bot;
+
 namespace Bot.Commands;
 
 /// <summary>
@@ -6,6 +8,9 @@ namespace Bot.Commands;
 public sealed class NewRecordCommand : CommandBase
 {
     public const string COMMAND_NAME =  "/ny_post";
-    
     public override string Name => COMMAND_NAME;
+    public NewRecordCommand(TelegramBotClient bot) : base(bot)
+    {
+    }
+    
 }

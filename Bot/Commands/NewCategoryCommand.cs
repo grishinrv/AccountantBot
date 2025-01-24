@@ -18,13 +18,10 @@ public sealed class NewCategoryCommand : CommandBase
     private const string BUTTON_NEW_CATEGORY = "Ja, skapa en ny";
     public override string Name => COMMAND_NAME;
 
-    private readonly TelegramBotClient _bot;
     private readonly IDbContextFactory<AccountantDbContext> _dbContextFactory;
-    public NewCategoryCommand(
-        TelegramBotClient bot, 
-        IDbContextFactory<AccountantDbContext> dbContextFactory)
+    public NewCategoryCommand(TelegramBotClient bot, IDbContextFactory<AccountantDbContext> dbContextFactory)
+        : base(bot)
     {
-        _bot = bot;
         _dbContextFactory = dbContextFactory;
         Transitions.Add(BUTTON_NEW_CATEGORY, NewCategoryPrompt);
     }
@@ -36,7 +33,7 @@ public sealed class NewCategoryCommand : CommandBase
 
     private async Task NewCategoryPrompt(CommandContext context)
     {
-        await _bot.SendMessage(
+        await Bot.SendMessage(
             chatId: context.ChatId,
             text: "Ange ett namn för den nya kategorin:",
             parseMode: ParseMode.Html,
@@ -73,7 +70,7 @@ public sealed class NewCategoryCommand : CommandBase
                 .ToString();
         }
         
-        await _bot.SendMessage(
+        await Bot.SendMessage(
             chatId: context.ChatId,
             text: outPut,
             parseMode: ParseMode.Html,

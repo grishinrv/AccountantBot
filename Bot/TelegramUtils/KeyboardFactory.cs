@@ -6,13 +6,12 @@ public static class KeyboardFactory
 {
     public static ReplyKeyboardMarkup Create(params KeyboardButton[] buttons)
     {
-        // var menu = new List<KeyboardButton[]>(buttons);
-        // foreach (var button in buttons)
-        // {
-        //     menu.Add(new[] { button });
-        // }
+        var buttonRows = buttons
+            .Select((value, index) => new { value, index })
+            .GroupBy(x => x.index / 2)
+            .Select(g => g.Select(x => x.value).ToArray())
+            .ToList();
         
-        var result = new ReplyKeyboardMarkup(buttons);
-        return result;
+        return new ReplyKeyboardMarkup(buttonRows);
     }
 }

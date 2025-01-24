@@ -1,35 +1,26 @@
-using System.Collections.Concurrent;
 using Bot.Models;
 using Bot.Settings;
-using Bot.TelegramUtils;
-using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Bot.Services;
 
 public sealed class UpdateHandler
 {
     private readonly IServiceProvider _container;
-    private readonly TelegramBotClient _bot;
     private readonly ILogger<UpdateHandler> _logger;
-    private readonly ConcurrentDictionary<string, IUserWorkflowManager> _userWorkflowManagers = new ();
     
     public UpdateHandler(
         IServiceProvider container, 
-        TelegramBotClient bot, 
         ILogger<UpdateHandler> logger)
     {
         _container = container;
-        _bot = bot;
         _logger = logger;
     }
 
     public async Task HandleErrorAsync(Exception exception, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("HandleError: {Exception}", exception);
+        _logger.LogWarning("HandleError: {Exception}", exception);
         // Cooldown in case of network connection error
         if (exception is RequestException)
         {
@@ -59,12 +50,12 @@ public sealed class UpdateHandler
 
     private async Task OnCallbackQuery(CallbackQuery callbackQuery)
     {
-        _logger.LogInformation("OnCallbackQuery, data: {CallbackQuery}, id: {Id}", callbackQuery.Data, callbackQuery.Id);
+        _logger.LogDebug("OnCallbackQuery, data: {CallbackQuery}, id: {Id}", callbackQuery.Data, callbackQuery.Id);
 
         var userName = callbackQuery.From.Username!;
         if (!Utils.AllowedUsers.Contains(userName))
         {
-            _logger.LogInformation("Not allowed user");
+            _logger.LogDebug("Not allowed user");
         }
         else
         {
@@ -81,12 +72,12 @@ public sealed class UpdateHandler
 
     private async Task OnMessage(Message msg)
     {
-        _logger.LogInformation("Receive message type: {MessageType}, from: \"{From}\"", msg.Type, msg.From!);
+        _logger.LogDebug("Receive message type: {MessageType}, from: \"{From}\"", msg.Type, msg.From!);
 
         var userName = msg.From?.Username!;
         if (!Utils.AllowedUsers.Contains(userName))
         {
-            _logger.LogInformation("Not allowed user");
+            _logger.LogDebug("Not allowed user");
         }
         else
         {
@@ -120,7 +111,7 @@ public sealed class UpdateHandler
   
     private Task UnknownUpdateHandlerAsync(Update update)
     {
-        _logger.LogInformation("Unknown update type: {UpdateType}", update.Type);
+        _logger.LogWarning("Unknown update type: {UpdateType}", update.Type);
         return Task.CompletedTask;
     }
 }

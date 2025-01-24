@@ -17,7 +17,11 @@ public static class DependencyInjection
         {
             services.AddKeyedSingleton<IUserWorkflowManager, UserWorkflowManager>(
                 serviceKey: userName, 
-                implementationFactory: (s, k) => new UserWorkflowManager(k!.ToString()!, s));
+                implementationFactory: (s, k) 
+                    => new UserWorkflowManager(
+                        s.GetRequiredService<ILogger<UserWorkflowManager>>(), 
+                        s,
+                        k!.ToString()!));
         }
         
         services

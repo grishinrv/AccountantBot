@@ -26,6 +26,13 @@ public sealed class NewCategoryCommand : CommandBase
         _bot = bot;
         _dbContextFactory = dbContextFactory;
     }
+
+    protected override async Task OnInitializedAsync(CommandContext context)
+    {
+        await _bot.SendMessage(
+            chatId: context.ChatId,
+            text: "Ange ett namn för den nya kategorin:");
+    }
     
     protected override async Task DefaultAction(CommandContext context)
     {

@@ -17,6 +17,7 @@ public class Purchase
     [Column("Spent")]
     public decimal Spent { get; set; }
     [Column("Comment")]
+    [MaxLength(128)]
     public string? Comment { get; set; }
     [Column("Date")]
     public DateTime Date { get; set; }

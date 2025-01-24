@@ -10,6 +10,7 @@ public class Category
     [Column("Id")]
     public int Id { get; set; }
     [Column("Name")]
+    [MaxLength(64)]
     public string Name { get; set; } = null!;
 
     public virtual ICollection<Purchase> Purchases { get; } = new List<Purchase>();

@@ -1,10 +1,18 @@
 using Bot;
+using Bot.Storage;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.RegisterBotServices();
 builder.WebHost.ConfigureKestrel(options => options.ListenAnyIP(80));
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = await scope.ServiceProvider.GetRequiredService<IDbContextFactory<AccountantDbContext>>().CreateDbContextAsync();
+    dbContext.Database.EnsureCreated();
+}
 
 app.Use(async (context, next) =>
 {

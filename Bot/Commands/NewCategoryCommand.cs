@@ -15,6 +15,7 @@ namespace Bot.Commands;
 public sealed class NewCategoryCommand : CommandBase
 {
     public const string COMMAND_NAME =  "/ny_kategori";
+    private const string BUTTON_NEW_CATEGORY = "Ja, skapa en ny";
     public override string Name => COMMAND_NAME;
 
     private readonly TelegramBotClient _bot;
@@ -25,15 +26,21 @@ public sealed class NewCategoryCommand : CommandBase
     {
         _bot = bot;
         _dbContextFactory = dbContextFactory;
+        Transitions.Add(BUTTON_NEW_CATEGORY, NewCategoryPrompt);
     }
 
     protected override async Task OnInitializedAsync(CommandContext context)
+    {
+        await NewCategoryPrompt(context);
+    }
+
+    private async Task NewCategoryPrompt(CommandContext context)
     {
         await _bot.SendMessage(
             chatId: context.ChatId,
             text: "Ange ett namn för den nya kategorin:");
     }
-    
+
     protected override async Task DefaultAction(CommandContext context)
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
@@ -49,7 +56,7 @@ public sealed class NewCategoryCommand : CommandBase
             await dbContext.SaveChangesAsync();
             outPut = new StringBuilder("Kategori \"")
                 .Append(context.LatestInputFromUser)
-                .Append("\" finns redan. Vänligen ange ett annat kategorinamn")
+                .Append("\" finns redan. Skapa en annan kategori?")
                 .ToString();
         }
         else
@@ -64,12 +71,14 @@ public sealed class NewCategoryCommand : CommandBase
             chatId: context.ChatId,
             text: outPut,
             parseMode: ParseMode.Html,
-            replyMarkup: InlineKeyboardFactory.Create(
-                new InlineKeyboardButton
+            replyMarkup: KeyboardFactory.Create(
+                new KeyboardButton
                 {
-                    Text = "Avboka",
-                    CallbackData = RootCommand.COMMAND_NAME,
-                    Pay = false
+                    Text = BUTTON_NEW_CATEGORY 
+                },
+                new KeyboardButton
+                {
+                    Text = BUTTON_CANCEL
                 })
         );
     }

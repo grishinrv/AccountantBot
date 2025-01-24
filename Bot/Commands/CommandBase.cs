@@ -5,6 +5,7 @@ namespace Bot.Commands;
 
 public abstract class CommandBase
 {
+    protected const string BUTTON_CANCEL = "Abvoka";
     public abstract string Name { get; }
     private IUserWorkflowManager _userWorkflowManager = null!;
     protected Dictionary<string, Func<CommandContext, Task>> Transitions { get; }
@@ -25,7 +26,8 @@ public abstract class CommandBase
         {
             { RootCommand.COMMAND_NAME, SwitchCommand<RootCommand> },
             { NewCategoryCommand.COMMAND_NAME, SwitchCommand<NewCategoryCommand> },
-            { NewRecordCommand.COMMAND_NAME, SwitchCommand<NewRecordCommand> }
+            { NewRecordCommand.COMMAND_NAME, SwitchCommand<NewRecordCommand> },
+            { BUTTON_CANCEL, SwitchCommand<RootCommand> }
         };
     }
 

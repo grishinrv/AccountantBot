@@ -38,7 +38,13 @@ public sealed class NewCategoryCommand : CommandBase
     {
         await _bot.SendMessage(
             chatId: context.ChatId,
-            text: "Ange ett namn för den nya kategorin:");
+            text: "Ange ett namn för den nya kategorin:",
+            parseMode: ParseMode.Html,
+            replyMarkup: KeyboardFactory.Create(
+                new KeyboardButton
+                {
+                    Text = BUTTON_CANCEL
+                }));
     }
 
     protected override async Task DefaultAction(CommandContext context)

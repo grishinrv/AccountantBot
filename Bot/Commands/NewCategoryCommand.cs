@@ -27,6 +27,7 @@ public sealed class NewCategoryCommand : CommandBase
         IDbContextFactory<AccountantDbContext> dbContextFactory)
         : base(bot)
     {
+        _logger = logger;
         _dbContextFactory = dbContextFactory;
         Transitions.Add(BUTTON_NEW_CATEGORY, NewCategoryPrompt);
     }

@@ -45,7 +45,7 @@ public sealed class NewRecordCommand : CommandBase
 
     private static string GetCategoryLabel(Category category)
     {
-        return new StringBuilder(category.Id)
+        return new StringBuilder(category.Id.ToString())
             .Append(". ")
             .Append(category.Name)
             .ToString();

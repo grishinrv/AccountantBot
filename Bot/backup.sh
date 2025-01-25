@@ -1,0 +1,1 @@
+scp -P 66  $USER@my_vpn:/usr/local/bin/accountant_bot/accountant.db ~/Documents/projects/accountant.db

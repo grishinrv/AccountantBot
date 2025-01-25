@@ -11,8 +11,8 @@ services:
     networks:
       - proxy_bot-network
     volumes:
-      - ./:/app/publish
-      - acc_bot_storage:/app/localstorage
+      - ./accountant.db:/app/accountant.db
+      - acc_bot_storage:/app/
     deploy:
       resources:
         limits:

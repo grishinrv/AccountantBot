@@ -18,8 +18,13 @@ public sealed class NewCategoryCommand : CommandBase
     private const string BUTTON_NEW_CATEGORY = "Ja, skapa en ny";
     public override string Name => COMMAND_NAME;
 
+    private readonly ILogger<NewCategoryCommand> _logger;
     private readonly IDbContextFactory<AccountantDbContext> _dbContextFactory;
-    public NewCategoryCommand(TelegramBotClient bot, IDbContextFactory<AccountantDbContext> dbContextFactory)
+    
+    public NewCategoryCommand(
+        ILogger<NewCategoryCommand> logger,
+        TelegramBotClient bot, 
+        IDbContextFactory<AccountantDbContext> dbContextFactory)
         : base(bot)
     {
         _dbContextFactory = dbContextFactory;
@@ -57,6 +62,8 @@ public sealed class NewCategoryCommand : CommandBase
             };
             dbContext.Categories.Add(category);
             await dbContext.SaveChangesAsync();
+            _logger.LogDebug("Category saved with Id: {Id}", category.Id);
+            
             outPut = new StringBuilder("Kategori \"")
                 .Append(context.LatestInputFromUser)
                 .Append("\" finns redan. Skapa en annan kategori?")

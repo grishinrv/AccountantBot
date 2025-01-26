@@ -16,17 +16,16 @@ public sealed class GetStatisticsCommand : CommandBase
 {
     enum State
     {
-        Initial = 0,
-        WaitingForPeriodStart = 1,
-        WaitingForPeriodEnd = 2
+        WaitingForPeriodStart = 0,
+        WaitingForPeriodEnd = 1
     }
     
     public const string COMMAND_NAME = "/statistik";
     private readonly IDbContextFactory<AccountantDbContext> _dbContextFactory;
     public override string Name => COMMAND_NAME;
-    private State CommandState { get; set; }  = State.Initial;
+    private State CommandState { get; set; }  = State.WaitingForPeriodStart;
     private static readonly CultureInfo RussianCulture = CultureInfo.CreateSpecificCulture("ru");
-    private DateTime? _startTime = null;
+    private DateTime? _startTime;
     private DateTime _currentMonth;
     
     public GetStatisticsCommand(
@@ -83,9 +82,6 @@ public sealed class GetStatisticsCommand : CommandBase
     {
         switch (CommandState)
         {
-            case State.Initial:
-                await base.DefaultAction(context);
-                break;
             case State.WaitingForPeriodStart:
                 await AnalyzePeriodStartInput(context);
                 break;
@@ -156,7 +152,8 @@ public sealed class GetStatisticsCommand : CommandBase
     private async Task GetStatistics(CommandContext context, DateTime periodStart, DateTime periodEnd)
     {
         var purchasesByCategory = await GetStatistics(periodStart, periodEnd);
-        
+        CommandState = State.WaitingForPeriodStart;
+        _startTime = null;
         var text = GetStatisticsFormatted(purchasesByCategory, periodStart, periodEnd);
         await Bot.SendMessage(
             chatId: context.ChatId,

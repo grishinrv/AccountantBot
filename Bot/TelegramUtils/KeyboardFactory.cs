@@ -114,11 +114,16 @@ public static class KeyboardFactory
         Console.WriteLine($"Day of week: {dayOfWeekIndex}, {current.DayOfWeek}, {current}");
         if (dayOfWeekIndex != 6)
         {
-            for (var i = dayOfWeekIndex; i < 7; i++)
+            for (var i = dayOfWeekIndex + 1; i < 7; i++)
             {
                 week[i] = Empty;
             }
             calendar.Add(week);
+        }
+
+        foreach (var buttons in calendar)
+        {
+            Console.WriteLine(buttons.Where(x => x != default).Count());
         }
         
         return new InlineKeyboardMarkup(calendar);

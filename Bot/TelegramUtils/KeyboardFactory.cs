@@ -90,8 +90,6 @@ public static class KeyboardFactory
         
         var current = monthStart;
         var dayOfWeekIndex = current.DayOfWeek.ToIndex();
-        try
-        {
 
         var week = new InlineKeyboardButton[7];
         for (var i = 0; i < dayOfWeekIndex; i++)
@@ -114,7 +112,6 @@ public static class KeyboardFactory
             }
         }
         
-        Console.WriteLine($"Day of week: {dayOfWeekIndex}, {current.DayOfWeek}, {current}");
         if (dayOfWeekIndex < 6)
         {
             for (var i = dayOfWeekIndex; i < 7; i++)
@@ -123,19 +120,7 @@ public static class KeyboardFactory
             }
             calendar.Add(week);
         }
-
-        foreach (var buttons in calendar)
-        {
-            Console.WriteLine(buttons.Where(x => x != default).Count());
-        }
         
         return new InlineKeyboardMarkup(calendar);
-        
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.StackTrace);
-            throw new ApplicationException($"{current}, {dayOfWeekIndex}, {e.Message}");
-        }
     }
 }

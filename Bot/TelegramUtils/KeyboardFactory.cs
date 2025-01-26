@@ -58,7 +58,7 @@ public static class KeyboardFactory
         
         var current = monthStart;
         var dayOfWeekIndex = (int)current.DayOfWeek;
-        var firstWeek = new List<KeyboardButton>(dayOfWeekIndex);
+        var firstWeek = new List<KeyboardButton>(7);
         for (var i = 0; i < dayOfWeekIndex; i++)
         {
             firstWeek[i] = Empty;

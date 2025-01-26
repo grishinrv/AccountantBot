@@ -92,6 +92,7 @@ public static class KeyboardFactory
         { 
             dayOfWeekIndex = (int)current.DayOfWeek -1;
             week[dayOfWeekIndex] = new InlineKeyboardButton{ Text = current.Day.ToString(), CallbackData = current.ToString("yyyy-MM-dd") };
+            current = current.AddDays(1);
             if (dayOfWeekIndex == 6)
             {
                 calendar.Add(week);
@@ -100,7 +101,6 @@ public static class KeyboardFactory
             {
                 week = new InlineKeyboardButton[7];
             }
-            current = current.AddDays(1);
         }
 
         // if (dayOfWeekIndex != 6)

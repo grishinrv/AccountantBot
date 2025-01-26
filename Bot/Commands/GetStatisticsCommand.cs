@@ -38,12 +38,12 @@ public sealed class GetStatisticsCommand : CommandBase
                 Name = g.Key, 
                 Amount = g.Sum(p => p.Spent)
             })
-            .OrderByDescending(x => x.Amount)
             .ToArrayAsync();
         
         var total = purchasesByCategory.Sum(x => x.Amount);
         var sb = new StringBuilder();
-
+        purchasesByCategory = purchasesByCategory.OrderByDescending(x => x.Amount).ToArray();
+        
         foreach (var item in purchasesByCategory)
         {
             var percentage = (double)(item.Amount / total * 100);

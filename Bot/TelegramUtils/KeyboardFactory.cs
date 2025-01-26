@@ -45,7 +45,7 @@ public static class KeyboardFactory
         }
     ];
     
-    private static readonly InlineKeyboardButton Empty = new (){ Text = string.Empty, CallbackData = DUMMY_CALLBACK };
+    private static readonly InlineKeyboardButton Empty = new (){ Text = "--", CallbackData = DUMMY_CALLBACK };
     
     public static ReplyKeyboardMarkup Create(params KeyboardButton[] buttons)
     {
@@ -66,7 +66,10 @@ public static class KeyboardFactory
         var calendar = new List<InlineKeyboardButton[]>{ DaysOfWeek };
         
         var current = monthStart;
-        var dayOfWeekIndex = (int)current.DayOfWeek;
+        var dayOfWeekIndex = (int)current.DayOfWeek -1;
+        try
+        {
+
         var firstWeek = new InlineKeyboardButton[7];
         Console.WriteLine($"Day of week: {dayOfWeekIndex}");
         for (var i = 0; i < 7; i++)
@@ -87,7 +90,7 @@ public static class KeyboardFactory
         var week = new InlineKeyboardButton[7];
         while (current < monthEnd)
         { 
-            dayOfWeekIndex = (int)current.DayOfWeek;
+            dayOfWeekIndex = (int)current.DayOfWeek -1;
             week[dayOfWeekIndex] = new InlineKeyboardButton{ Text = current.Day.ToString(), CallbackData = current.ToString("yyyy-MM-dd") };
             if (dayOfWeekIndex == 6)
             {
@@ -113,5 +116,11 @@ public static class KeyboardFactory
         // }
         
         return new InlineKeyboardMarkup(calendar);
+        
+        }
+        catch (Exception e)
+        {
+            throw new ApplicationException($"{current}, {dayOfWeekIndex}, {e.Message}");
+        }
     }
 }

@@ -5,6 +5,8 @@ namespace Bot.TelegramUtils;
 public static class KeyboardFactory
 {
     public const string DUMMY_CALLBACK = "-=-";
+    public const string LEAF_OVER_LEFT_CALLBACK = "<--";
+    public const string LEAF_OVER_RIGHT_CALLBACK = "-->";
 
     private static int ToIndex(this DayOfWeek day)
     {
@@ -69,6 +71,12 @@ public static class KeyboardFactory
     ];
     
     private static readonly InlineKeyboardButton Empty = new (){ Text = "--", CallbackData = DUMMY_CALLBACK };
+
+    private static readonly InlineKeyboardButton[] ScrollButtons =
+    [
+        new() { Text = LEAF_OVER_LEFT_CALLBACK, CallbackData = LEAF_OVER_LEFT_CALLBACK },
+        new() { Text = LEAF_OVER_RIGHT_CALLBACK, CallbackData = LEAF_OVER_RIGHT_CALLBACK }
+    ];
     
     public static ReplyKeyboardMarkup Create(params KeyboardButton[] buttons)
     {
@@ -120,6 +128,8 @@ public static class KeyboardFactory
             }
             calendar.Add(week);
         }
+        
+        calendar.Add(ScrollButtons);
         
         return new InlineKeyboardMarkup(calendar);
     }

@@ -1,8 +1,11 @@
+using System.Globalization;
+using System.Runtime.InteropServices.JavaScript;
 using System.Text;
 using Bot.Models;
 using Bot.Storage;
 using Bot.TelegramUtils;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Primitives;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
@@ -15,37 +18,145 @@ public sealed class GetStatisticsCommand : CommandBase
 {
     enum State
     {
-        WaitingForPeriodStart = 0,
-        WaitingForPeriodEnd = 1
+        Initial = 0,
+        WaitingForPeriodStart = 1,
+        WaitingForPeriodEnd = 2
     }
     
     public const string COMMAND_NAME = "/statistik";
     private readonly IDbContextFactory<AccountantDbContext> _dbContextFactory;
     public override string Name => COMMAND_NAME;
-    private State CommandState { get; set; }  = State.WaitingForPeriodStart;
+    private State CommandState { get; set; }  = State.Initial;
+    private static readonly CultureInfo RussianCulture = new CultureInfo("ru-RU");
+    private DateTime? _startTime = null;
+    private DateTime _currentMonth;
     
     public GetStatisticsCommand(
         IDbContextFactory<AccountantDbContext> dbContextFactory,
         TelegramBotClient bot) : base(bot)
     {
         _dbContextFactory = dbContextFactory;
+        Transitions.Add(KeyboardFactory.LEAF_OVER_LEFT_CALLBACK, MonthLeadOverLeft);
+        Transitions.Add(KeyboardFactory.LEAF_OVER_RIGHT_CALLBACK, MonthLeadOverRight);
     }
 
     protected override async Task OnInitializedAsync(CommandContext context)
     {
+        await PeriodStartPrompt(context, DateTime.Now);
+    }
+
+    private async Task PeriodStartPrompt(CommandContext context, DateTime month)
+    {
+        CommandState = State.WaitingForPeriodStart;
+        var dateTime = month;
+        _currentMonth = dateTime;
+        var sb = new StringBuilder("Välj startdatum för perioden:")
+            .AppendLine()
+            .Append(dateTime.Month.ToString("MMMM", RussianCulture))
+            .Append(' ')
+            .Append(dateTime.Year);
+        
         await Bot.SendMessage(
             chatId: context.ChatId,
-            text: "Välj startdatum för perioden:",
+            text: sb.ToString(),
             parseMode: ParseMode.Html,
-            replyMarkup: KeyboardFactory.GetCalendar(DateTime.Now));
+            replyMarkup: KeyboardFactory.GetCalendar(dateTime));
     }
     
-    private async Task GetStatistics(CommandContext context)
+    private async Task PeriodEndPrompt(CommandContext context, DateTime month)
     {
-        DateTime now = DateTime.UtcNow;
-        var periodStart = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
-        var periodEnd = periodStart.AddMonths(1).AddSeconds(-1);
+        CommandState = State.WaitingForPeriodEnd;
+        var dateTime = month;
+        _currentMonth = dateTime;
+        var sb = new StringBuilder("Välj slutdatum för perioden:")
+            .AppendLine()
+            .Append(dateTime.Month.ToString("MMMM", RussianCulture))
+            .Append(' ')
+            .Append(dateTime.Year);
         
+        await Bot.SendMessage(
+            chatId: context.ChatId,
+            text: sb.ToString(),
+            parseMode: ParseMode.Html,
+            replyMarkup: KeyboardFactory.GetCalendar(dateTime));
+    }
+
+    protected override async Task DefaultAction(CommandContext context)
+    {
+        switch (CommandState)
+        {
+            case State.Initial:
+                await base.DefaultAction(context);
+                break;
+            case State.WaitingForPeriodStart:
+                await AnalyzePeriodStartInput(context);
+                break;
+            case State.WaitingForPeriodEnd:
+                await AnalyzeEndStartInput(context);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+    }
+
+    private async Task MonthLeadOverLeft(CommandContext context)
+    {
+        switch (CommandState)
+        {
+            case State.WaitingForPeriodStart:
+                await PeriodStartPrompt(context, _currentMonth.AddMonths(-1));
+                break;
+            case State.WaitingForPeriodEnd:
+                await PeriodEndPrompt(context, _currentMonth.AddMonths(-1));
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+    }
+    
+    private async Task MonthLeadOverRight(CommandContext context)
+    {
+        switch (CommandState)
+        {
+            case State.WaitingForPeriodStart:
+                await PeriodStartPrompt(context, _currentMonth.AddMonths(1));
+                break;
+            case State.WaitingForPeriodEnd:
+                await PeriodEndPrompt(context, _currentMonth.AddMonths(1));
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+    }
+
+    private async Task AnalyzePeriodStartInput(CommandContext context)
+    {
+        if (int.TryParse(context.LatestInputFromUser, out var day))
+        {
+            _startTime = new DateTime(_currentMonth.Year, _currentMonth.Month, day);
+            await PeriodEndPrompt(context, _currentMonth);
+        }
+        else 
+        {
+            await PeriodStartPrompt(context, _currentMonth);
+        }
+    }
+    
+    private async Task AnalyzeEndStartInput(CommandContext context)
+    {
+        if (int.TryParse(context.LatestInputFromUser, out var day))
+        {
+            var endDate = new DateTime(_currentMonth.Year, _currentMonth.Month, day).AddDays(1).AddSeconds(-1);
+            await GetStatistics(context, _startTime!.Value, endDate);
+        }
+        else 
+        {
+            await PeriodEndPrompt(context, _currentMonth);
+        }
+    }
+    
+    private async Task GetStatistics(CommandContext context, DateTime periodStart, DateTime periodEnd)
+    {
         var purchasesByCategory = await GetStatistics(periodStart, periodEnd);
         
         var text = GetStatisticsFormatted(purchasesByCategory, periodStart, periodEnd);

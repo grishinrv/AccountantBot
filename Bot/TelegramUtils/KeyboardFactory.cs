@@ -123,17 +123,17 @@ public static class KeyboardFactory
             }
         }
 
-        // if (dayOfWeekIndex != 6)
-        // {
-        //     for (var i = dayOfWeekIndex; i < 7; i++)
-        //     {
-        //         if (i < dayOfWeekIndex)
-        //         {
-        //             week[i] = Empty;
-        //         }
-        //     }
-        //     calendar.Add(week);
-        // }
+        if (dayOfWeekIndex != 6)
+        {
+            for (var i = dayOfWeekIndex; i < 7; i++)
+            {
+                if (i < dayOfWeekIndex)
+                {
+                    week[i] = Empty;
+                }
+            }
+            calendar.Add(week);
+        }
         
         return new InlineKeyboardMarkup(calendar);
         

@@ -41,19 +41,21 @@ public sealed class GetStatisticsCommand : CommandBase
             .ToArrayAsync();
         
         var total = purchasesByCategory.Sum(x => x.Amount);
-        var sb = new StringBuilder();
+        var sb = new StringBuilder("Статистика за текущий месяц")
+            .AppendLine()
+            .AppendLine();
         purchasesByCategory = purchasesByCategory.OrderByDescending(x => x.Amount).ToArray();
         
         foreach (var item in purchasesByCategory)
         {
             var percentage = (double)(item.Amount / total * 100);
-            var barLength = (int)(percentage / 5);
+            var barLength = (int)(percentage / 4);
           
             sb.AppendLine(item.Name)
                 .Append(": ")
                 .Append(item.Amount)
-                .Append(" (")
-                .Append(percentage)
+                .Append("Є (")
+                .Append(percentage.ToString("F2"))
                 .Append("%)")
                 .AppendLine();
             
@@ -61,6 +63,8 @@ public sealed class GetStatisticsCommand : CommandBase
             {
                 sb.Append('■');
             }
+            
+            sb.AppendLine();
         }
 
         await Bot.SendMessage(

@@ -36,7 +36,7 @@ public static class KeyboardFactory
         }
     ];
     
-    private static readonly KeyboardButton Empty = new (){ Text = string.Empty };
+    private static readonly KeyboardButton Empty = new (){ Text = "." };
     
     public static ReplyKeyboardMarkup Create(params KeyboardButton[] buttons)
     {
@@ -57,7 +57,7 @@ public static class KeyboardFactory
         var calendar = new List<KeyboardButton[]>{ DaysOfWeek };
         
         var current = monthStart;
-        var dayOfWeekIndex = (int)current.DayOfWeek;
+        var dayOfWeekIndex = (int)current.DayOfWeek - 1;
         var firstWeek = new KeyboardButton[7];
         for (var i = 0; i < 7; i++)
         {

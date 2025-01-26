@@ -102,11 +102,14 @@ public static class KeyboardFactory
         while (current <= monthEnd)
         {  
             week[dayOfWeekIndex] = new InlineKeyboardButton{ Text = current.Day.ToString(), CallbackData = current.ToString("yyyy-MM-dd") };
-            current = current.AddDays(1);
-            dayOfWeekIndex = current.DayOfWeek.ToIndex();
             if (dayOfWeekIndex == 6)
             {
                 calendar.Add(week);
+            }
+            current = current.AddDays(1);
+            dayOfWeekIndex = current.DayOfWeek.ToIndex();
+            if (dayOfWeekIndex == 0 && current != monthStart)
+            {
                 week = new InlineKeyboardButton[7];
             }
         }

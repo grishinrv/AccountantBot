@@ -94,7 +94,6 @@ public static class KeyboardFactory
         {
 
         var firstWeek = new InlineKeyboardButton[7];
-        Console.WriteLine($"Day of week: {dayOfWeekIndex}, {current.DayOfWeek}, {current}");
         for (var i = 0; i < 7; i++)
         {
             if (i < dayOfWeekIndex)
@@ -123,6 +122,7 @@ public static class KeyboardFactory
             }
         }
 
+        Console.WriteLine($"Day of week: {dayOfWeekIndex}, {current.DayOfWeek}, {current}");
         if (dayOfWeekIndex != 6)
         {
             for (var i = dayOfWeekIndex; i < 7; i++)

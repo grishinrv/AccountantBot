@@ -119,9 +119,6 @@ public static class KeyboardFactory
             if (dayOfWeekIndex == 6)
             {
                 calendar.Add(week);
-            }
-            else if (dayOfWeekIndex == 0)
-            {
                 week = new InlineKeyboardButton[7];
             }
         }

@@ -67,8 +67,8 @@ public sealed class NewRecordCommand : CommandBase
     private async Task NewRecordPrompt(CommandContext context)
     {
         State = NewRecordCommandState.WaitingForCategory;
-        using var dbContext = await _dbContextFactory.CreateDbContextAsync();
-        var categories = await dbContext.Categories.ToArrayAsync();
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+        var categories = await dbContext.Categories.AsNoTracking().ToArrayAsync();
         var buttons = categories
             .Select(x => new KeyboardButton
             {

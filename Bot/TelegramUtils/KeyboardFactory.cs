@@ -5,6 +5,29 @@ namespace Bot.TelegramUtils;
 public static class KeyboardFactory
 {
     public const string DUMMY_CALLBACK = "-=-";
+
+    private static int ToIndex(this DayOfWeek day)
+    {
+        switch (day)
+        {
+            case DayOfWeek.Sunday:
+                return 6;
+            case DayOfWeek.Monday:
+                return 0;
+            case DayOfWeek.Tuesday:
+                return 1;
+            case DayOfWeek.Wednesday:
+                return 2;
+            case DayOfWeek.Thursday:
+                return 3;
+            case DayOfWeek.Friday:
+                return 4;
+            case DayOfWeek.Saturday:
+                return 5;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(day), day, null);
+        }
+    }
     
     private static readonly InlineKeyboardButton[] DaysOfWeek =
     [
@@ -66,7 +89,7 @@ public static class KeyboardFactory
         var calendar = new List<InlineKeyboardButton[]>{ DaysOfWeek };
         
         var current = monthStart;
-        var dayOfWeekIndex = (int)current.DayOfWeek;
+        var dayOfWeekIndex = current.DayOfWeek.ToIndex();
         try
         {
 
@@ -90,7 +113,7 @@ public static class KeyboardFactory
         var week = new InlineKeyboardButton[7];
         while (current < monthEnd)
         { 
-            dayOfWeekIndex = (int)current.DayOfWeek;
+            dayOfWeekIndex = current.DayOfWeek.ToIndex();
             week[dayOfWeekIndex] = new InlineKeyboardButton{ Text = current.Day.ToString(), CallbackData = current.ToString("yyyy-MM-dd") };
             current = current.AddDays(1);
             if (dayOfWeekIndex == 6)

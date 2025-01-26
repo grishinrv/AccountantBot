@@ -2,6 +2,7 @@ using System.Text;
 using Bot.Models;
 using Bot.Storage;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Primitives;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
@@ -25,28 +26,31 @@ public sealed class GetStatisticsCommand : CommandBase
 
     protected override async Task OnInitializedAsync(CommandContext context)
     {
-        await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
         DateTime now = DateTime.UtcNow;
         var periodStart = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
         var periodEnd = periodStart.AddMonths(1).AddSeconds(-1);
         
-        var purchasesByCategory = await dbContext.Purchases
-            .Where(x => x.Date >= periodStart && x.Date <= periodEnd)
-            .GroupBy(x => x.Category.Name)
-            .Select(g => new AmountByCategory
-            {
-                Name = g.Key, 
-                Amount = g.Sum(p => p.Spent)
-            })
-            .ToArrayAsync();
+        var purchasesByCategory = await GetStatistics(periodStart, periodEnd);
         
+        var text = GetStatisticsFormatted(purchasesByCategory, periodStart, periodEnd);
+        await Bot.SendMessage(
+            chatId: context.ChatId,
+            text: text,
+            parseMode: ParseMode.Markdown);
+    }
+
+    private static string GetStatisticsFormatted(AmountByCategory[] purchasesByCategory, DateTime periodStart, DateTime periodEnd)
+    {
         var total = purchasesByCategory.Sum(x => x.Amount);
-        var sb = new StringBuilder("Статистика за текущий месяц - всего")
+        var sb = new StringBuilder("Статистика c ")
+            .Append(periodStart.ToString("yyyy-MM-dd"))
+            .Append(" по ")
+            .Append(periodEnd.ToString("yyyy-MM-dd"))
+            .Append(" - всего ")
             .Append(total.ToString("F"))
             .Append('Є')
             .AppendLine()
             .AppendLine();
-        purchasesByCategory = purchasesByCategory.OrderByDescending(x => x.Amount).ToArray();
         
         foreach (var item in purchasesByCategory)
         {
@@ -70,9 +74,24 @@ public sealed class GetStatisticsCommand : CommandBase
             sb.AppendLine();
         }
 
-        await Bot.SendMessage(
-            chatId: context.ChatId,
-            text: sb.ToString(),
-            parseMode: ParseMode.Markdown);
+        var text = sb.ToString();
+        return text;
+    }
+
+    private async Task<AmountByCategory[]> GetStatistics(DateTime periodStart, DateTime periodEnd)
+    {
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+        var purchasesByCategory = await dbContext.Purchases
+            .Where(x => x.Date >= periodStart && x.Date <= periodEnd)
+            .GroupBy(x => x.Category.Name)
+            .Select(g => new AmountByCategory
+            {
+                Name = g.Key, 
+                Amount = g.Sum(p => p.Spent)
+            })
+            .ToArrayAsync();
+        
+        purchasesByCategory = purchasesByCategory.OrderByDescending(x => x.Amount).ToArray();
+        return purchasesByCategory;
     }
 }

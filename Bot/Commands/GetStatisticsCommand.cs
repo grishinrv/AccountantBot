@@ -2,7 +2,6 @@ using System.Text;
 using Bot.Models;
 using Bot.Storage;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Primitives;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
@@ -13,9 +12,9 @@ namespace Bot.Commands;
 /// </summary>
 public sealed class GetStatisticsCommand : CommandBase
 {
-    private const string COMMAND_TEXT = "/statistik";
+    public const string COMMAND_NAME = "/statistik";
     private readonly IDbContextFactory<AccountantDbContext> _dbContextFactory;
-    public override string Name => COMMAND_TEXT;
+    public override string Name => COMMAND_NAME;
     
     public GetStatisticsCommand(
         IDbContextFactory<AccountantDbContext> dbContextFactory,

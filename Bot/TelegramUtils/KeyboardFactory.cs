@@ -4,46 +4,48 @@ namespace Bot.TelegramUtils;
 
 public static class KeyboardFactory
 {
+    public const string DUMMY_CALLBACK = "-=-";
+    
     private static readonly InlineKeyboardButton[] DaysOfWeek =
     [
         new()
         {
             Text = "Пн",
-            CallbackData = null 
+            CallbackData = DUMMY_CALLBACK
         },
         new()
         {
             Text = "Вт",
-            CallbackData = null 
+            CallbackData = DUMMY_CALLBACK 
         },
         new()
         {
             Text = "Ср",
-            CallbackData = null 
+            CallbackData = DUMMY_CALLBACK 
         },
         new()
         {
             Text = "Чт",
-            CallbackData = null 
+            CallbackData = DUMMY_CALLBACK 
         },
         new()
         {
             Text = "Пт",
-            CallbackData = null 
+            CallbackData = DUMMY_CALLBACK 
         },
         new()
         {
             Text = "Сб",
-            CallbackData = null 
+            CallbackData = DUMMY_CALLBACK 
         },
         new()
         {
             Text = "Вс",
-            CallbackData = null 
+            CallbackData = DUMMY_CALLBACK 
         }
     ];
     
-    private static readonly InlineKeyboardButton Empty = new (){ Text = string.Empty, CallbackData = null };
+    private static readonly InlineKeyboardButton Empty = new (){ Text = string.Empty, CallbackData = DUMMY_CALLBACK };
     
     public static ReplyKeyboardMarkup Create(params KeyboardButton[] buttons)
     {

@@ -78,16 +78,23 @@ public static class KeyboardFactory
         while (current < monthEnd)
         { 
             dayOfWeekIndex = (int)current.DayOfWeek - 1;
-            week[dayOfWeekIndex] = new KeyboardButton{ Text = current.Day.ToString() };
-            if (dayOfWeekIndex == 6)
+            try
             {
-                calendar.Add(week);
+                week[dayOfWeekIndex] = new KeyboardButton{ Text = current.Day.ToString() };
+                if (dayOfWeekIndex == 6)
+                {
+                    calendar.Add(week);
+                }
+                else if (dayOfWeekIndex == 0)
+                {
+                    week = new KeyboardButton[7];
+                }
+                current = current.AddDays(1);
             }
-            else if (dayOfWeekIndex == 0)
+            catch (Exception e)
             {
-                week = new KeyboardButton[7];
+                throw new Exception($"{dayOfWeekIndex}, {current}");
             }
-            current = current.AddDays(1);
         }
 
         if (dayOfWeekIndex != 6)

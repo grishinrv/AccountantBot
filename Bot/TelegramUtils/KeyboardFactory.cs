@@ -57,8 +57,12 @@ public static class KeyboardFactory
         var calendar = new List<KeyboardButton[]>{ DaysOfWeek };
         
         var current = monthStart;
-        var dayOfWeekIndex = (int)current.DayOfWeek - 1;
+        var dayOfWeekIndex = (int)current.DayOfWeek;
         var firstWeek = new KeyboardButton[7];
+        try
+        {
+
+
         for (var i = 0; i < 7; i++)
         {
             if (i < dayOfWeekIndex)
@@ -77,24 +81,17 @@ public static class KeyboardFactory
         var week = new KeyboardButton[7];
         while (current < monthEnd)
         { 
-            dayOfWeekIndex = (int)current.DayOfWeek - 1;
-            try
+            dayOfWeekIndex = (int)current.DayOfWeek;
+            week[dayOfWeekIndex] = new KeyboardButton{ Text = current.Day.ToString() };
+            if (dayOfWeekIndex == 6)
             {
-                week[dayOfWeekIndex] = new KeyboardButton{ Text = current.Day.ToString() };
-                if (dayOfWeekIndex == 6)
-                {
-                    calendar.Add(week);
-                }
-                else if (dayOfWeekIndex == 0)
-                {
-                    week = new KeyboardButton[7];
-                }
-                current = current.AddDays(1);
+                calendar.Add(week);
             }
-            catch (Exception e)
+            else if (dayOfWeekIndex == 0)
             {
-                throw new Exception($"{dayOfWeekIndex}, {current}");
+                week = new KeyboardButton[7];
             }
+            current = current.AddDays(1);
         }
 
         if (dayOfWeekIndex != 6)
@@ -110,5 +107,10 @@ public static class KeyboardFactory
         }
         
         return new ReplyKeyboardMarkup(calendar);
+        }
+        catch (Exception e)
+        {
+            throw new ApplicationException($"{current}, {dayOfWeekIndex}, {e.Message}");
+        }
     }
 }

@@ -4,39 +4,46 @@ namespace Bot.TelegramUtils;
 
 public static class KeyboardFactory
 {
-    private static readonly KeyboardButton[] DaysOfWeek =
+    private static readonly InlineKeyboardButton[] DaysOfWeek =
     [
         new()
         {
-            Text = "Пн"
+            Text = "Пн",
+            CallbackData = null 
         },
         new()
         {
-            Text = "Вт"
+            Text = "Вт",
+            CallbackData = null 
         },
         new()
         {
-            Text = "Ср"
+            Text = "Ср",
+            CallbackData = null 
         },
         new()
         {
-            Text = "Чт"
+            Text = "Чт",
+            CallbackData = null 
         },
         new()
         {
-            Text = "Пт"
+            Text = "Пт",
+            CallbackData = null 
         },
         new()
         {
-            Text = "Сб"
+            Text = "Сб",
+            CallbackData = null 
         },
         new()
         {
-            Text = "Вс"
+            Text = "Вс",
+            CallbackData = null 
         }
     ];
     
-    private static readonly KeyboardButton Empty = new (){ Text = "--" };
+    private static readonly InlineKeyboardButton Empty = new (){ Text = string.Empty, CallbackData = null };
     
     public static ReplyKeyboardMarkup Create(params KeyboardButton[] buttons)
     {
@@ -49,20 +56,17 @@ public static class KeyboardFactory
         return new ReplyKeyboardMarkup(buttonRows);
     }
 
-    public static ReplyKeyboardMarkup GetCalendar(DateTime date)
+    public static InlineKeyboardMarkup GetCalendar(DateTime date)
     {
         var monthStart = new DateTime(date.Year, date.Month, 1, 0, 0, 0, DateTimeKind.Utc);
         var monthEnd = monthStart.AddMonths(1).AddDays(-1);
 
-        var calendar = new List<KeyboardButton[]>{ DaysOfWeek };
+        var calendar = new List<InlineKeyboardButton[]>{ DaysOfWeek };
         
         var current = monthStart;
         var dayOfWeekIndex = (int)current.DayOfWeek;
-        var firstWeek = new KeyboardButton[7];
-        try
-        {
-
-
+        var firstWeek = new InlineKeyboardButton[7];
+        Console.WriteLine($"Day of week: {dayOfWeekIndex}");
         for (var i = 0; i < 7; i++)
         {
             if (i < dayOfWeekIndex)
@@ -71,46 +75,41 @@ public static class KeyboardFactory
             }
             else
             {
-                firstWeek[i] = new KeyboardButton{ Text = current.Day.ToString() };
+                firstWeek[i] = new InlineKeyboardButton{ Text = current.Day.ToString(), CallbackData = current.ToString("yyyy-MM-dd") };
                 current = current.AddDays(1);
             }
         }
 
         calendar.Add(firstWeek);
         
-        var week = new KeyboardButton[7];
+        var week = new InlineKeyboardButton[7];
         while (current < monthEnd)
         { 
             dayOfWeekIndex = (int)current.DayOfWeek;
-            week[dayOfWeekIndex] = new KeyboardButton{ Text = current.Day.ToString() };
+            week[dayOfWeekIndex] = new InlineKeyboardButton{ Text = current.Day.ToString(), CallbackData = current.ToString("yyyy-MM-dd") };
             if (dayOfWeekIndex == 6)
             {
                 calendar.Add(week);
             }
             else if (dayOfWeekIndex == 0)
             {
-                week = new KeyboardButton[7];
+                week = new InlineKeyboardButton[7];
             }
             current = current.AddDays(1);
         }
 
-        // if (dayOfWeekIndex != 6)
-        // {
-        //     for (var i = dayOfWeekIndex; i < 7; i++)
-        //     {
-        //         if (i < dayOfWeekIndex)
-        //         {
-        //             week[i] = Empty;
-        //         }
-        //     }
-        //     calendar.Add(week);
-        // }
-        
-        return new ReplyKeyboardMarkup(calendar);
-        }
-        catch (Exception e)
+        if (dayOfWeekIndex != 6)
         {
-            throw new ApplicationException($"{current}, {dayOfWeekIndex}, {e.Message}");
+            for (var i = dayOfWeekIndex; i < 7; i++)
+            {
+                if (i < dayOfWeekIndex)
+                {
+                    week[i] = Empty;
+                }
+            }
+            calendar.Add(week);
         }
+        
+        return new InlineKeyboardMarkup(calendar);
     }
 }

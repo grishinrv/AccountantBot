@@ -54,21 +54,24 @@ public static class KeyboardFactory
         var monthStart = new DateTime(date.Year, date.Month, 1, 0, 0, 0, DateTimeKind.Utc);
         var monthEnd = monthStart.AddMonths(1).AddDays(-1);
 
-        var calendar = new List<IList<KeyboardButton>>{ DaysOfWeek };
+        var calendar = new List<KeyboardButton[]>{ DaysOfWeek };
         
         var current = monthStart;
         var dayOfWeekIndex = (int)current.DayOfWeek;
-        var firstWeek = new List<KeyboardButton>(7);
-        for (var i = 0; i < dayOfWeekIndex; i++)
+        var firstWeek = new KeyboardButton[7];
+        for (var i = 0; i < 7; i++)
         {
-            firstWeek[i] = Empty;
+            if (i < dayOfWeekIndex)
+            {
+                firstWeek[i] = Empty;
+            }
+            else
+            {
+                firstWeek[i] = new KeyboardButton{ Text = current.Day.ToString() };
+                current = current.AddDays(1);
+            }
         }
 
-        for (var i = dayOfWeekIndex; i < 7; i++)
-        {
-            firstWeek.Add(new KeyboardButton{ Text = current.Day.ToString() });
-            current = current.AddDays(1);
-        }
         calendar.Add(firstWeek);
         
         

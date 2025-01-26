@@ -1,6 +1,7 @@
 using System.Text;
 using Bot.Models;
 using Bot.Storage;
+using Bot.TelegramUtils;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
@@ -12,9 +13,16 @@ namespace Bot.Commands;
 /// </summary>
 public sealed class GetStatisticsCommand : CommandBase
 {
+    enum State
+    {
+        WaitingForPeriodStart = 0,
+        WaitingForPeriodEnd = 1
+    }
+    
     public const string COMMAND_NAME = "/statistik";
     private readonly IDbContextFactory<AccountantDbContext> _dbContextFactory;
     public override string Name => COMMAND_NAME;
+    private State CommandState { get; set; }  = State.WaitingForPeriodStart;
     
     public GetStatisticsCommand(
         IDbContextFactory<AccountantDbContext> dbContextFactory,
@@ -24,6 +32,15 @@ public sealed class GetStatisticsCommand : CommandBase
     }
 
     protected override async Task OnInitializedAsync(CommandContext context)
+    {
+        await Bot.SendMessage(
+            chatId: context.ChatId,
+            text: "Välj startdatum för perioden:",
+            parseMode: ParseMode.Html,
+            replyMarkup: KeyboardFactory.GetCalendar(DateTime.Now));
+    }
+    
+    private async Task GetStatistics(CommandContext context)
     {
         DateTime now = DateTime.UtcNow;
         var periodStart = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);

@@ -66,7 +66,7 @@ public static class KeyboardFactory
         var calendar = new List<InlineKeyboardButton[]>{ DaysOfWeek };
         
         var current = monthStart;
-        var dayOfWeekIndex = (int)current.DayOfWeek -1;
+        var dayOfWeekIndex = ((int)current.DayOfWeek) -1;
         try
         {
 
@@ -90,7 +90,7 @@ public static class KeyboardFactory
         var week = new InlineKeyboardButton[7];
         while (current < monthEnd)
         { 
-            dayOfWeekIndex = (int)current.DayOfWeek -1;
+            dayOfWeekIndex = ((int)current.DayOfWeek) -1;
             week[dayOfWeekIndex] = new InlineKeyboardButton{ Text = current.Day.ToString(), CallbackData = current.ToString("yyyy-MM-dd") };
             current = current.AddDays(1);
             if (dayOfWeekIndex == 6)

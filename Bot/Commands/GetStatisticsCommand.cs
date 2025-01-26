@@ -1,11 +1,9 @@
 using System.Globalization;
-using System.Runtime.InteropServices.JavaScript;
 using System.Text;
 using Bot.Models;
 using Bot.Storage;
 using Bot.TelegramUtils;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Primitives;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
@@ -27,7 +25,7 @@ public sealed class GetStatisticsCommand : CommandBase
     private readonly IDbContextFactory<AccountantDbContext> _dbContextFactory;
     public override string Name => COMMAND_NAME;
     private State CommandState { get; set; }  = State.Initial;
-    private static readonly CultureInfo RussianCulture = new CultureInfo("ru-RU");
+    private static readonly CultureInfo RussianCulture = CultureInfo.CreateSpecificCulture("ru");
     private DateTime? _startTime = null;
     private DateTime _currentMonth;
     
@@ -52,7 +50,7 @@ public sealed class GetStatisticsCommand : CommandBase
         _currentMonth = dateTime;
         var sb = new StringBuilder("Välj startdatum för perioden:")
             .AppendLine()
-            .Append(dateTime.Month.ToString("MMMM", RussianCulture))
+            .Append(dateTime.ToString("MMMM", RussianCulture))
             .Append(' ')
             .Append(dateTime.Year);
         
@@ -70,7 +68,7 @@ public sealed class GetStatisticsCommand : CommandBase
         _currentMonth = dateTime;
         var sb = new StringBuilder("Välj slutdatum för perioden:")
             .AppendLine()
-            .Append(dateTime.Month.ToString("MMMM", RussianCulture))
+            .Append(dateTime.ToString("MMMM", RussianCulture))
             .Append(' ')
             .Append(dateTime.Year);
         

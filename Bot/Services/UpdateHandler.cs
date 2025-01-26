@@ -50,7 +50,7 @@ public sealed class UpdateHandler
 
     private async Task OnCallbackQuery(CallbackQuery callbackQuery)
     {
-        _logger.LogDebug("OnCallbackQuery, data: {CallbackQuery}, id: {Id}", callbackQuery.Data, callbackQuery.Id);
+        _logger.LogDebug("OnCallbackQuery, data: {CallbackQuery}, id: {Id}, chatId: {ChatId}", callbackQuery.Data, callbackQuery.Id, callbackQuery.Message!.Chat.Id);
 
         var userName = callbackQuery.From.Username!;
         if (!Utils.AllowedUsers.Contains(userName))
@@ -64,7 +64,7 @@ public sealed class UpdateHandler
             await userManager.HandleInput(new CommandContext
             {
                 UserName = userName,
-                ChatId = long.Parse(callbackQuery.Id),
+                ChatId = callbackQuery.Message!.Chat.Id,
                 LatestInputFromUser = callbackQuery.Data!
             });
         }

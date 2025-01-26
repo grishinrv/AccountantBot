@@ -12,6 +12,7 @@ services:
       - proxy_bot-network
     volumes:
       - ./accountant.db:/app/accountant.db
+      - ./appsettings.json:/app/appsettings.json
     deploy:
       resources:
         limits:

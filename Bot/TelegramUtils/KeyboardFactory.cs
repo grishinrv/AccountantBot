@@ -99,11 +99,11 @@ public static class KeyboardFactory
             week[i] = Empty;
         }
 
-        while (current < monthEnd)
-        { 
-            dayOfWeekIndex = current.DayOfWeek.ToIndex();
+        while (current <= monthEnd)
+        {  
             week[dayOfWeekIndex] = new InlineKeyboardButton{ Text = current.Day.ToString(), CallbackData = current.ToString("yyyy-MM-dd") };
             current = current.AddDays(1);
+            dayOfWeekIndex = current.DayOfWeek.ToIndex();
             if (dayOfWeekIndex == 6)
             {
                 calendar.Add(week);
@@ -111,9 +111,8 @@ public static class KeyboardFactory
             }
         }
         
-        dayOfWeekIndex = current.DayOfWeek.ToIndex();
         Console.WriteLine($"Day of week: {dayOfWeekIndex}, {current.DayOfWeek}, {current}");
-        if (dayOfWeekIndex != 6)
+        if (dayOfWeekIndex < 6)
         {
             for (var i = dayOfWeekIndex + 1; i < 7; i++)
             {

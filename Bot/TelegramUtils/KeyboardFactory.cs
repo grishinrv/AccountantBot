@@ -94,17 +94,17 @@ public static class KeyboardFactory
             current = current.AddDays(1);
         }
 
-        if (dayOfWeekIndex != 6)
-        {
-            for (var i = dayOfWeekIndex; i < 7; i++)
-            {
-                if (i < dayOfWeekIndex)
-                {
-                    week[i] = Empty;
-                }
-            }
-            calendar.Add(week);
-        }
+        // if (dayOfWeekIndex != 6)
+        // {
+        //     for (var i = dayOfWeekIndex; i < 7; i++)
+        //     {
+        //         if (i < dayOfWeekIndex)
+        //         {
+        //             week[i] = Empty;
+        //         }
+        //     }
+        //     calendar.Add(week);
+        // }
         
         return new ReplyKeyboardMarkup(calendar);
         }

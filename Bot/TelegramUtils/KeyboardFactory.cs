@@ -113,14 +113,14 @@ public static class KeyboardFactory
         
         dayOfWeekIndex = current.DayOfWeek.ToIndex();
         Console.WriteLine($"Day of week: {dayOfWeekIndex}, {current.DayOfWeek}, {current}");
-        // if (dayOfWeekIndex != 6)
-        // {
-        //     for (var i = dayOfWeekIndex + 1; i < 7; i++)
-        //     {
-        //         week[i] = Empty;
-        //     }
-        //     calendar.Add(week);
-        // }
+        if (dayOfWeekIndex != 6)
+        {
+            for (var i = dayOfWeekIndex + 1; i < 7; i++)
+            {
+                week[i] = Empty;
+            }
+            calendar.Add(week);
+        }
 
         foreach (var buttons in calendar)
         {

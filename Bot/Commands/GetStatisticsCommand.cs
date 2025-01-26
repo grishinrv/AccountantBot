@@ -204,6 +204,7 @@ public sealed class GetStatisticsCommand : CommandBase
     {
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
         var purchasesByCategory = await dbContext.Purchases
+            .AsNoTracking()
             .Where(x => x.Date >= periodStart && x.Date <= periodEnd)
             .GroupBy(x => x.Category.Name)
             .Select(g => new AmountByCategory

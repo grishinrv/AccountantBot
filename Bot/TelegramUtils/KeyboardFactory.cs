@@ -93,28 +93,17 @@ public static class KeyboardFactory
         try
         {
 
-        var firstWeek = new InlineKeyboardButton[7];
-        for (var i = 0; i < 7; i++)
+        var week = new InlineKeyboardButton[7];
+        for (var i = 0; i < dayOfWeekIndex; i++)
         {
-            if (i < dayOfWeekIndex)
-            {
-                firstWeek[i] = Empty;
-            }
-            else
-            {
-                firstWeek[i] = new InlineKeyboardButton{ Text = current.Day.ToString(), CallbackData = current.ToString("yyyy-MM-dd") };
-                current = current.AddDays(1);
-            }
+            week[i] = Empty;
         }
 
-        calendar.Add(firstWeek);
-        
-        var week = new InlineKeyboardButton[7];
         while (current < monthEnd)
         { 
-            dayOfWeekIndex = current.DayOfWeek.ToIndex();
             week[dayOfWeekIndex] = new InlineKeyboardButton{ Text = current.Day.ToString(), CallbackData = current.ToString("yyyy-MM-dd") };
             current = current.AddDays(1);
+            dayOfWeekIndex = current.DayOfWeek.ToIndex();
             if (dayOfWeekIndex == 6)
             {
                 calendar.Add(week);
@@ -127,10 +116,7 @@ public static class KeyboardFactory
         {
             for (var i = dayOfWeekIndex; i < 7; i++)
             {
-                if (i < dayOfWeekIndex)
-                {
-                    week[i] = Empty;
-                }
+                week[i] = Empty;
             }
             calendar.Add(week);
         }

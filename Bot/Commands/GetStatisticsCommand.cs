@@ -90,7 +90,7 @@ public sealed class GetStatisticsCommand : CommandBase
                 await AnalyzePeriodStartInput(context);
                 break;
             case State.WaitingForPeriodEnd:
-                await AnalyzeEndStartInput(context);
+                await AnalyzePeriodEndInput(context);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
@@ -129,9 +129,9 @@ public sealed class GetStatisticsCommand : CommandBase
 
     private async Task AnalyzePeriodStartInput(CommandContext context)
     {
-        if (int.TryParse(context.LatestInputFromUser, out var day))
+        if (DateTime.TryParse(context.LatestInputFromUser, out var day))
         {
-            _startTime = new DateTime(_currentMonth.Year, _currentMonth.Month, day);
+            _startTime = day;
             await PeriodEndPrompt(context, _currentMonth);
         }
         else 
@@ -140,11 +140,11 @@ public sealed class GetStatisticsCommand : CommandBase
         }
     }
     
-    private async Task AnalyzeEndStartInput(CommandContext context)
+    private async Task AnalyzePeriodEndInput(CommandContext context)
     {
-        if (int.TryParse(context.LatestInputFromUser, out var day))
+        if (DateTime.TryParse(context.LatestInputFromUser, out var day))
         {
-            var endDate = new DateTime(_currentMonth.Year, _currentMonth.Month, day).AddDays(1).AddSeconds(-1);
+            var endDate = day.AddDays(1).AddSeconds(-1);
             await GetStatistics(context, _startTime!.Value, endDate);
         }
         else 

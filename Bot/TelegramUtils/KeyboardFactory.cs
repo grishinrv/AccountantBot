@@ -36,7 +36,7 @@ public static class KeyboardFactory
         }
     ];
     
-    private static readonly KeyboardButton Empty = new (){ Text = "." };
+    private static readonly KeyboardButton Empty = new (){ Text = "--" };
     
     public static ReplyKeyboardMarkup Create(params KeyboardButton[] buttons)
     {
@@ -74,12 +74,33 @@ public static class KeyboardFactory
 
         calendar.Add(firstWeek);
         
-        
-        // while (current < monthEnd)
-        // {
-        //     current = current.AddDays(1);
-        // }
-        //
+        var week = new KeyboardButton[7];
+        while (current < monthEnd)
+        { 
+            dayOfWeekIndex = (int)current.DayOfWeek - 1;
+            week[dayOfWeekIndex] = new KeyboardButton{ Text = current.Day.ToString() };
+            if (dayOfWeekIndex == 6)
+            {
+                calendar.Add(week);
+            }
+            else if (dayOfWeekIndex == 0)
+            {
+                week = new KeyboardButton[7];
+            }
+            current = current.AddDays(1);
+        }
+
+        if (dayOfWeekIndex != 6)
+        {
+            for (var i = dayOfWeekIndex; i < 7; i++)
+            {
+                if (i < dayOfWeekIndex)
+                {
+                    week[i] = Empty;
+                }
+            }
+            calendar.Add(week);
+        }
         
         return new ReplyKeyboardMarkup(calendar);
     }

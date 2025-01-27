@@ -30,7 +30,10 @@ public static class DependencyInjection
         services.AddDbContextFactory<AccountantDbContext>(options =>
             options
                 .UseSqlite("Data Source=accountant.db")
-                .EnableSensitiveDataLogging());
+#if DEBUG
+                .EnableSensitiveDataLogging()
+#endif
+        );
         
         services.AddControllers();
         services

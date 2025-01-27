@@ -140,8 +140,7 @@ public sealed class GetStatisticsCommand : CommandBase
     {
         if (DateTime.TryParse(context.LatestInputFromUser, out var day))
         {
-            var endDate = day.AddDays(1).AddSeconds(-1);
-            await GetStatistics(context, _startTime!.Value, endDate);
+            await GetStatistics(context, _startTime!.Value, day);
         }
         else 
         {
@@ -202,10 +201,11 @@ public sealed class GetStatisticsCommand : CommandBase
 
     private async Task<AmountByCategory[]> GetStatistics(DateTime periodStart, DateTime periodEnd)
     {
+        periodEnd = periodEnd.AddDays(1);
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
         var purchasesByCategory = await dbContext.Purchases
             .AsNoTracking()
-            .Where(x => x.Date >= periodStart && x.Date <= periodEnd)
+            .Where(x => x.Date >= periodStart && x.Date < periodEnd)
             .GroupBy(x => x.Category.Name)
             .Select(g => new AmountByCategory
             {

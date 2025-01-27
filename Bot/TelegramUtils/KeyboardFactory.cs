@@ -4,6 +4,7 @@ namespace Bot.TelegramUtils;
 
 public static class KeyboardFactory
 {
+    public const string DUMMY_CALLBACK = "-=-";
     public const string LEAF_OVER_LEFT_CALLBACK = "<--";
     public const string LEAF_OVER_RIGHT_CALLBACK = "-->";
 
@@ -34,35 +35,42 @@ public static class KeyboardFactory
     [
         new()
         {
-            Text = "Пн"
+            Text = "Пн",
+            CallbackData = DUMMY_CALLBACK
         },
         new()
         {
-            Text = "Вт"
+            Text = "Вт",
+            CallbackData = DUMMY_CALLBACK 
         },
         new()
         {
-            Text = "Ср"
+            Text = "Ср",
+            CallbackData = DUMMY_CALLBACK 
         },
         new()
         {
-            Text = "Чт"
+            Text = "Чт",
+            CallbackData = DUMMY_CALLBACK 
         },
         new()
         {
-            Text = "Пт"
+            Text = "Пт",
+            CallbackData = DUMMY_CALLBACK 
         },
         new()
         {
-            Text = "Сб"
+            Text = "Сб",
+            CallbackData = DUMMY_CALLBACK 
         },
         new()
         {
-            Text = "Вс"
+            Text = "Вс",
+            CallbackData = DUMMY_CALLBACK 
         }
     ];
     
-    private static readonly InlineKeyboardButton Empty = new (){ Text = "--" };
+    private static readonly InlineKeyboardButton Empty = new (){ Text = "--", CallbackData = DUMMY_CALLBACK };
 
     private static readonly InlineKeyboardButton[] ScrollButtons =
     [

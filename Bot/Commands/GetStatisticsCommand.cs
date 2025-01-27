@@ -1,8 +1,6 @@
-using System.Globalization;
 using System.Text;
 using Bot.Models;
 using Bot.Storage;
-using Bot.TelegramUtils;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
@@ -12,146 +10,21 @@ namespace Bot.Commands;
 /// <summary>
 /// statistik - Få statistik per kategori
 /// </summary>
-public sealed class GetStatisticsCommand : CommandBase
+public sealed class GetStatisticsCommand : PeriodRequestingCommandBase
 {
-    enum State
-    {
-        WaitingForPeriodStart = 0,
-        WaitingForPeriodEnd = 1
-    }
-    
     public const string COMMAND_NAME = "/statistik";
-    private readonly IDbContextFactory<AccountantDbContext> _dbContextFactory;
     public override string Name => COMMAND_NAME;
-    private State CommandState { get; set; }  = State.WaitingForPeriodStart;
-    private static readonly CultureInfo RussianCulture = CultureInfo.CreateSpecificCulture("ru");
-    private DateTime? _startTime;
-    private DateTime _currentMonth;
-    
+
     public GetStatisticsCommand(
         IDbContextFactory<AccountantDbContext> dbContextFactory,
-        TelegramBotClient bot) : base(bot)
+        TelegramBotClient bot) : base(dbContextFactory, bot)
     {
-        _dbContextFactory = dbContextFactory;
-        Transitions.Add(KeyboardFactory.LEAF_OVER_LEFT_CALLBACK, MonthLeadOverLeft);
-        Transitions.Add(KeyboardFactory.LEAF_OVER_RIGHT_CALLBACK, MonthLeadOverRight);
     }
 
-    protected override async Task OnInitializedAsync(CommandContext context)
-    {
-        await PeriodStartPrompt(context, DateTime.Now);
-    }
-
-    private async Task PeriodStartPrompt(CommandContext context, DateTime month)
-    {
-        CommandState = State.WaitingForPeriodStart;
-        var dateTime = month;
-        _currentMonth = dateTime;
-        var sb = new StringBuilder("Välj startdatum för perioden:")
-            .AppendLine()
-            .Append(dateTime.ToString("MMMM", RussianCulture))
-            .Append(' ')
-            .Append(dateTime.Year);
-        
-        await Bot.SendMessage(
-            chatId: context.ChatId,
-            text: sb.ToString(),
-            parseMode: ParseMode.Html,
-            replyMarkup: KeyboardFactory.GetCalendar(dateTime));
-    }
-    
-    private async Task PeriodEndPrompt(CommandContext context, DateTime month)
-    {
-        CommandState = State.WaitingForPeriodEnd;
-        var dateTime = month;
-        _currentMonth = dateTime;
-        var sb = new StringBuilder("Välj slutdatum för perioden:")
-            .AppendLine()
-            .Append(dateTime.ToString("MMMM", RussianCulture))
-            .Append(' ')
-            .Append(dateTime.Year);
-        
-        await Bot.SendMessage(
-            chatId: context.ChatId,
-            text: sb.ToString(),
-            parseMode: ParseMode.Html,
-            replyMarkup: KeyboardFactory.GetCalendar(dateTime));
-    }
-
-    protected override async Task DefaultAction(CommandContext context)
-    {
-        switch (CommandState)
-        {
-            case State.WaitingForPeriodStart:
-                await AnalyzePeriodStartInput(context);
-                break;
-            case State.WaitingForPeriodEnd:
-                await AnalyzePeriodEndInput(context);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
-    }
-
-    private async Task MonthLeadOverLeft(CommandContext context)
-    {
-        switch (CommandState)
-        {
-            case State.WaitingForPeriodStart:
-                await PeriodStartPrompt(context, _currentMonth.AddMonths(-1));
-                break;
-            case State.WaitingForPeriodEnd:
-                await PeriodEndPrompt(context, _currentMonth.AddMonths(-1));
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
-    }
-    
-    private async Task MonthLeadOverRight(CommandContext context)
-    {
-        switch (CommandState)
-        {
-            case State.WaitingForPeriodStart:
-                await PeriodStartPrompt(context, _currentMonth.AddMonths(1));
-                break;
-            case State.WaitingForPeriodEnd:
-                await PeriodEndPrompt(context, _currentMonth.AddMonths(1));
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
-    }
-
-    private async Task AnalyzePeriodStartInput(CommandContext context)
-    {
-        if (DateTime.TryParse(context.LatestInputFromUser, out var day))
-        {
-            _startTime = day;
-            await PeriodEndPrompt(context, _currentMonth);
-        }
-        else 
-        {
-            await PeriodStartPrompt(context, _currentMonth);
-        }
-    }
-    
-    private async Task AnalyzePeriodEndInput(CommandContext context)
-    {
-        if (DateTime.TryParse(context.LatestInputFromUser, out var day))
-        {
-            await GetStatistics(context, _startTime!.Value, day);
-        }
-        else 
-        {
-            await PeriodEndPrompt(context, _currentMonth);
-        }
-    }
-    
-    private async Task GetStatistics(CommandContext context, DateTime periodStart, DateTime periodEnd)
+    protected override async Task GetStatistics(CommandContext context, DateTime periodStart, DateTime periodEnd)
     {
         var purchasesByCategory = await GetStatistics(periodStart, periodEnd);
-        CommandState = State.WaitingForPeriodStart;
+        CommandState = WaitingForPeriodState.WAITING_START;
         _startTime = null;
         var text = GetStatisticsFormatted(purchasesByCategory, periodStart, periodEnd);
         await Bot.SendMessage(
@@ -202,7 +75,7 @@ public sealed class GetStatisticsCommand : CommandBase
     private async Task<AmountByCategory[]> GetStatistics(DateTime periodStart, DateTime periodEnd)
     {
         periodEnd = periodEnd.AddDays(1);
-        await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await DbContextFactory.CreateDbContextAsync();
         var purchasesByCategory = await dbContext.Purchases
             .AsNoTracking()
             .Where(x => x.Date >= periodStart && x.Date < periodEnd)

@@ -31,6 +31,7 @@ public abstract class CommandBase
             { NewCategoryCommand.COMMAND_NAME, SwitchCommand<NewCategoryCommand> },
             { NewRecordCommand.COMMAND_NAME, SwitchCommand<NewRecordCommand> },
             { GetStatisticsCommand.COMMAND_NAME, SwitchCommand<GetStatisticsCommand> },
+            { ListRecordsCommand.COMMAND_NAME, SwitchCommand<ListRecordsCommand> },
             { BUTTON_CANCEL, SwitchCommand<RootCommand> }
         };
     }

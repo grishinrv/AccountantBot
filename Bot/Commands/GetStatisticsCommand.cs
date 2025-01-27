@@ -10,7 +10,7 @@ using Telegram.Bot.Types.Enums;
 namespace Bot.Commands;
 
 /// <summary>
-/// statistik - få statistik per kategori
+/// statistik - Få statistik per kategori
 /// </summary>
 public sealed class GetStatisticsCommand : CommandBase
 {

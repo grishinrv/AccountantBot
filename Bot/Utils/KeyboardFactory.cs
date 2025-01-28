@@ -1,6 +1,6 @@
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace Bot.TelegramUtils;
+namespace Bot.Utils;
 
 public static class KeyboardFactory
 {
@@ -89,9 +89,9 @@ public static class KeyboardFactory
         return new ReplyKeyboardMarkup(buttonRows);
     }
 
-    public static InlineKeyboardMarkup GetCalendar(DateTime date)
+    public static InlineKeyboardMarkup GetCalendar(DateOnly date)
     {
-        var monthStart = new DateTime(date.Year, date.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+        var monthStart = new DateOnly(date.Year, date.Month, 1);
         var monthEnd = monthStart.AddMonths(1).AddDays(-1);
 
         var calendar = new List<InlineKeyboardButton[]>{ DaysOfWeek };

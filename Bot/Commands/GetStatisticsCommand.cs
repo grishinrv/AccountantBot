@@ -21,11 +21,10 @@ public sealed class GetStatisticsCommand : PeriodRequestingCommandBase
     {
     }
 
-    protected override async Task GetStatistics(CommandContext context, DateTime periodStart, DateTime periodEnd)
+    protected override async Task ProcessPeriod(CommandContext context, Period period)
     {
-        var purchasesByCategory = await GetStatistics(periodStart, periodEnd);
+        var purchasesByCategory = await GetStatistics(period.Start, period.End);
         CommandState = WaitingForPeriodState.WAITING_START;
-        _startTime = null;
         var text = GetStatisticsFormatted(purchasesByCategory, periodStart, periodEnd);
         await Bot.SendMessage(
             chatId: context.ChatId,
@@ -72,7 +71,7 @@ public sealed class GetStatisticsCommand : PeriodRequestingCommandBase
         return text;
     }
 
-    private async Task<AmountByCategory[]> GetStatistics(DateTime periodStart, DateTime periodEnd)
+    private async Task<AmountByCategory[]> GetStatistics(DateOnly periodStart, DateOnly periodEnd)
     {
         periodEnd = periodEnd.AddDays(1);
         await using var dbContext = await DbContextFactory.CreateDbContextAsync();

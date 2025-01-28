@@ -14,9 +14,9 @@ public static class DependencyInjection
     {
         services.AddHttpClient("tgwebhook")
             .RemoveAllLoggers()
-            .AddTypedClient(httpClient => new TelegramBotClient(Utils.TelegramAccessToken, httpClient));
+            .AddTypedClient(httpClient => new TelegramBotClient(Env.TelegramAccessToken, httpClient));
 
-        foreach (var userName in Utils.AllowedUsers)
+        foreach (var userName in Env.AllowedUsers)
         {
             services.AddKeyedSingleton<IUserWorkflowManager, UserWorkflowManager>(
                 serviceKey: userName, 
@@ -38,6 +38,7 @@ public static class DependencyInjection
         services.AddControllers();
         services
             .AddScoped<UpdateHandler>()
+            .AddTransient<IPeriodProviderService, PeriodProviderService>()
             .AddTransient<NewCategoryCommand>()
             .AddTransient<RootCommand>()
             .AddTransient<GetStatisticsCommand>()

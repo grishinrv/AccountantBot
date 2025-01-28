@@ -1,6 +1,6 @@
 namespace Bot.Settings;
 
-internal static class Utils
+internal static class Env
 {
     private const string TELEGRAM_ACCESS_TOKEN = "TELEGRAM_ACCESS_TOKEN";
     private const string ACCOUNTANT_BOT_ACCESS_TOKEN = "ACCOUNTANT_BOT_ACCESS_TOKEN";

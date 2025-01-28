@@ -15,7 +15,7 @@ public class BotController(ILogger<BotController> logger) : ControllerBase
     public async Task<IActionResult> SetWebHook([FromServices] TelegramBotClient bot, CancellationToken ct)
     {
         var allowedMessages= new []{ UpdateType.Message, UpdateType.CallbackQuery };
-        var webhookUrl = new Uri(Utils.WebHookUrl).AbsoluteUri;
+        var webhookUrl = new Uri(Env.WebHookUrl).AbsoluteUri;
         
         logger.LogDebug("Setting webhook for {Url}", webhookUrl);
         
@@ -25,7 +25,7 @@ public class BotController(ILogger<BotController> logger) : ControllerBase
                 url: webhookUrl, 
                 allowedUpdates: allowedMessages, 
                 cancellationToken: ct,
-                secretToken: Utils.BotToken);
+                secretToken: Env.BotToken);
         }
         catch (Exception e)
         {
@@ -41,7 +41,7 @@ public class BotController(ILogger<BotController> logger) : ControllerBase
         [FromServices] UpdateHandler handleUpdateService, 
         CancellationToken ct)
     {
-        if (!string.Equals(Request.Headers["X-Telegram-Bot-Api-Secret-Token"], Utils.BotToken))
+        if (!string.Equals(Request.Headers["X-Telegram-Bot-Api-Secret-Token"], Env.BotToken))
         {
             logger.LogInformation("Bot Secret Token is missing, Forbidden");
             return StatusCode(403);

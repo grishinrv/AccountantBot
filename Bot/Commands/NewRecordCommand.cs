@@ -1,7 +1,7 @@
 using System.Text;
 using Bot.Models;
 using Bot.Storage;
-using Bot.TelegramUtils;
+using Bot.Utils;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;

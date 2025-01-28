@@ -53,7 +53,7 @@ public sealed class UpdateHandler
         _logger.LogDebug("OnCallbackQuery, data: {CallbackQuery}, id: {Id}, chatId: {ChatId}", callbackQuery.Data, callbackQuery.Id, callbackQuery.Message!.Chat.Id);
 
         var userName = callbackQuery.From.Username!;
-        if (!Utils.AllowedUsers.Contains(userName))
+        if (!Env.AllowedUsers.Contains(userName))
         {
             _logger.LogDebug("Not allowed user");
         }
@@ -75,7 +75,7 @@ public sealed class UpdateHandler
         _logger.LogDebug("Receive message type: {MessageType}, from: \"{From}\"", msg.Type, msg.From!);
 
         var userName = msg.From?.Username!;
-        if (!Utils.AllowedUsers.Contains(userName))
+        if (!Env.AllowedUsers.Contains(userName))
         {
             _logger.LogDebug("Not allowed user");
         }

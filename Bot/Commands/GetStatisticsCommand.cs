@@ -28,8 +28,6 @@ public sealed class GetStatisticsCommand : CommandBase
         _periodProvider.RegisterTransitions(Transitions);
     }
 
-    private short CommandState { get; set; } = WaitingForPeriodState.WAITING_START;
-
     protected override async Task OnInitializedAsync(CommandContext context)
     {
         await _periodProvider.PeriodStartPrompt(context, DateOnly.FromDateTime(DateTime.Now));
@@ -37,27 +35,16 @@ public sealed class GetStatisticsCommand : CommandBase
 
     protected override async Task DefaultAction(CommandContext context)
     {
-        switch (CommandState)
+        var period = await _periodProvider.HandlePeriodWorkflow(context);
+        if (period != null)
         {
-            case WaitingForPeriodState.WAITING_START:
-                await _periodProvider.AnalyzePeriodStartInput(context);
-                break;
-            case WaitingForPeriodState.WAITING_END:
-                var period = await _periodProvider.AnalyzePeriodEndInput(context);
-                if (period != null)
-                {
-                    await ProcessPeriod(context, period);
-                }
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
+            await ProcessPeriod(context, period);
         }
     }
 
     private async Task ProcessPeriod(CommandContext context, Period period)
     {
         var purchasesByCategory = await GetStatistics(period.Start, period.End);
-        CommandState = WaitingForPeriodState.WAITING_START;
         var text = GetStatisticsFormatted(purchasesByCategory, period.Start, period.End);
         await Bot.SendMessage(
             chatId: context.ChatId,

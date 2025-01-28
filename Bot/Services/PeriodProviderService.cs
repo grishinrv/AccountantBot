@@ -1,5 +1,4 @@
 using System.Text;
-using Bot.Commands;
 using Bot.Models;
 using Bot.Utils;
 using Telegram.Bot;
@@ -48,8 +47,27 @@ public sealed class PeriodProviderService : IPeriodProviderService
             parseMode: ParseMode.Html,
             replyMarkup: KeyboardFactory.GetCalendar(date));
     }
-    
-    public async Task PeriodEndPrompt(CommandContext context, DateOnly month)
+
+    public async Task<Period?> HandlePeriodWorkflow(CommandContext context)
+    {
+        switch (CurrentState)
+        {
+            case State.WaitingForStartProvided:
+                await AnalyzePeriodStartInput(context);
+                return null;
+            case State.WaitingForEndProvided:
+                var period = await AnalyzePeriodEndInput(context);
+                if (period != null)
+                {
+                    CurrentState = State.WaitingForStartProvided;
+                }
+                return period;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+    }
+
+    private async Task PeriodEndPrompt(CommandContext context, DateOnly month)
     {
         CurrentState = State.WaitingForEndProvided;
         var dateTime = month;
@@ -97,7 +115,7 @@ public sealed class PeriodProviderService : IPeriodProviderService
         }
     }
     
-    public async Task AnalyzePeriodStartInput(CommandContext context)
+    private async Task AnalyzePeriodStartInput(CommandContext context)
     {
         if (DateOnly.TryParse(context.LatestInputFromUser, out var day))
         {
@@ -110,7 +128,7 @@ public sealed class PeriodProviderService : IPeriodProviderService
         }
     }
 
-    public async Task<Period?> AnalyzePeriodEndInput(CommandContext context)
+    private async Task<Period?> AnalyzePeriodEndInput(CommandContext context)
     {
         if (DateOnly.TryParse(context.LatestInputFromUser, out var day))
         {

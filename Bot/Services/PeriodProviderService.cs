@@ -24,6 +24,12 @@ public sealed class PeriodProviderService : IPeriodProviderService
     {
         _bot = bot;
     }
+
+    public void RegisterTransitions(Dictionary<string, Func<CommandContext, Task>> commandTransitions)
+    {
+        commandTransitions.Add(KeyboardFactory.LEAF_OVER_LEFT_CALLBACK, MonthLeadOverLeft);
+        commandTransitions.Add(KeyboardFactory.LEAF_OVER_RIGHT_CALLBACK, MonthLeadOverRight);
+    }
     
     public async Task PeriodStartPrompt(CommandContext context, DateOnly month)
     {
@@ -61,7 +67,7 @@ public sealed class PeriodProviderService : IPeriodProviderService
             replyMarkup: KeyboardFactory.GetCalendar(dateTime));
     }
 
-    public async Task MonthLeadOverLeft(CommandContext context)
+    private async Task MonthLeadOverLeft(CommandContext context)
     {
         switch (CurrentState)
         {
@@ -76,7 +82,7 @@ public sealed class PeriodProviderService : IPeriodProviderService
         }
     }
 
-    public async Task MonthLeadOverRight(CommandContext context)
+    private async Task MonthLeadOverRight(CommandContext context)
     {
         switch (CurrentState)
         {

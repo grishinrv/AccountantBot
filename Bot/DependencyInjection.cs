@@ -42,6 +42,7 @@ public static class DependencyInjection
             .AddTransient<NewCategoryCommand>()
             .AddTransient<RootCommand>()
             .AddTransient<GetStatisticsCommand>()
+            .AddTransient<ListRecordsCommand>()
             .AddTransient<NewRecordCommand>();
         services.ConfigureTelegramBotMvc();
 

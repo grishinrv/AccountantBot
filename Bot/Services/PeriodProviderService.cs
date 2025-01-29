@@ -78,6 +78,7 @@ public sealed class PeriodProviderService : IPeriodProviderService
                 if (period != null)
                 {
                     CurrentState = State.WaitingForStartProvided;
+                    await PeriodStartPrompt(context, _currentMonth);
                 }
                 return period;
             default:

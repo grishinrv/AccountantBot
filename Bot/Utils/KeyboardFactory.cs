@@ -7,6 +7,7 @@ public static class KeyboardFactory
     public const string DUMMY_CALLBACK = "-=-";
     public const string LEAF_OVER_LEFT_CALLBACK = "<--";
     public const string LEAF_OVER_RIGHT_CALLBACK = "-->";
+    public const string DATE_PLACEHOLDER = "--";
 
     private static int ToIndex(this DayOfWeek day)
     {
@@ -70,7 +71,7 @@ public static class KeyboardFactory
         }
     ];
     
-    private static readonly InlineKeyboardButton Empty = new (){ Text = "--", CallbackData = DUMMY_CALLBACK };
+    private static readonly InlineKeyboardButton Empty = new (){ Text = DATE_PLACEHOLDER, CallbackData = DUMMY_CALLBACK };
 
     private static readonly InlineKeyboardButton[] ScrollButtons =
     [

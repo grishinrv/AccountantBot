@@ -53,9 +53,11 @@ public sealed class PeriodProviderService : IPeriodProviderService
     {
         if (context.CallBackMessageId != null)
         {
-            await _bot.EditMessageReplyMarkup(
+            await _bot.EditMessageText(
                 chatId: context.ChatId,
                 messageId: context.CallBackMessageId.Value,
+                text: text,
+                parseMode: ParseMode.Html,
                 replyMarkup: KeyboardFactory.GetCalendar(date));
         }
         else

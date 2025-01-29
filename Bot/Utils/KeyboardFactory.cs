@@ -106,6 +106,7 @@ public static class KeyboardFactory
             week[i] = Empty;
         }
 
+        var nextMonthStart = monthStart.AddMonths(1);
         while (current <= monthEnd)
         {  
             week[dayOfWeekIndex] = new InlineKeyboardButton{ Text = current.Day.ToString(), CallbackData = current.ToString("yyyy-MM-dd") };
@@ -115,13 +116,13 @@ public static class KeyboardFactory
             }
             current = current.AddDays(1);
             dayOfWeekIndex = current.DayOfWeek.ToIndex();
-            if (dayOfWeekIndex == 0 && current != monthStart)
+            if (dayOfWeekIndex == 0 && current != monthStart && current != nextMonthStart)
             {
                 week = new InlineKeyboardButton[7];
             }
         }
         
-        if (dayOfWeekIndex < 7)
+        if (dayOfWeekIndex > 0)
         {
             for (var i = dayOfWeekIndex; i < 7; i++)
             {

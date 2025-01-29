@@ -1,3 +1,4 @@
+using Bot.Models;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Bot.Utils;
@@ -138,5 +139,10 @@ public static class KeyboardFactory
         calendar.Add(ScrollButtons);
         
         return new InlineKeyboardMarkup(calendar);
+    }
+
+    public static InlineKeyboardMarkup GetCheckBoxList(params CheckboxItemModel[] optionButtons)
+    {
+        
     }
 }

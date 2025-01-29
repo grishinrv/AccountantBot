@@ -1,4 +1,5 @@
 using Bot.Commands;
+using Bot.Models;
 using Bot.Services;
 using Bot.Settings;
 using Bot.Storage;
@@ -39,6 +40,7 @@ public static class DependencyInjection
         services
             .AddScoped<UpdateHandler>()
             .AddTransient<IPeriodProviderService, PeriodProviderService>()
+            .AddTransient<IOptionsProviderService<Include>, OptionsProviderService<Include>>()
             .AddTransient<NewCategoryCommand>()
             .AddTransient<RootCommand>()
             .AddTransient<GetStatisticsCommand>()

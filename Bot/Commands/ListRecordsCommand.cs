@@ -13,15 +13,6 @@ namespace Bot.Commands;
 /// </summary>
 public sealed class ListRecordsCommand : CommandBase
 {
-    [Flags]
-    enum Include
-    {
-        Default = 0,
-        User = 1 << 0,
-        Comment = 1 << 1,
-        Time = 1 << 2
-    }
-
     enum State
     {
         WaitingForPeriod = 0,

@@ -35,16 +35,12 @@ public sealed class PeriodProviderService : IPeriodProviderService
         CurrentState = State.WaitingForStartProvided;
         var date = month;
         _currentMonth = date;
-        var text = string.Empty;
-        if (context.CallBackMessageId == null)
-        {
-            text = new StringBuilder("Välj startdatum för perioden:")
+        var text = new StringBuilder("Välj startdatum för perioden:")
                 .AppendLine()
                 .Append(date.ToString("MMMM", CultureHelper.RussianCulture))
                 .Append(' ')
                 .Append(date.Year)
                 .ToString();
-        }
         
         await SendCalendar(context, date, text);
     }
@@ -94,16 +90,12 @@ public sealed class PeriodProviderService : IPeriodProviderService
         CurrentState = State.WaitingForEndProvided;
         var date = month;
         _currentMonth = date;
-        var text = string.Empty;
-        if (context.CallBackMessageId == null)
-        {
-            text = new StringBuilder("Välj slutdatum för perioden:")
+        var text = new StringBuilder("Välj slutdatum för perioden:")
                 .AppendLine()
                 .Append(date.ToString("MMMM", CultureHelper.RussianCulture)) 
                 .Append(' ')
                 .Append(date.Year)
                 .ToString();
-        }
         
         await SendCalendar(context, date, text);
     }

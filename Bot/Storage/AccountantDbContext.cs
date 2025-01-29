@@ -30,6 +30,10 @@ public class AccountantDbContext : DbContext
             .Property(p => p.Id)
             .ValueGeneratedOnAdd();
         builder.Entity<Purchase>()
+            .HasIndex(p => p.Date);
+        builder.Entity<Purchase>()
+            .HasIndex(p => p.CategoryId);
+        builder.Entity<Purchase>()
             .Property(p => p.Date)
             .ValueGeneratedOnAdd();
     }

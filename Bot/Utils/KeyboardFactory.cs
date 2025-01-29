@@ -121,7 +121,7 @@ public static class KeyboardFactory
             }
         }
         
-        if (dayOfWeekIndex < 6)
+        if (dayOfWeekIndex < 7)
         {
             for (var i = dayOfWeekIndex; i < 7; i++)
             {

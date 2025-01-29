@@ -12,7 +12,7 @@ public sealed class KeyboardFactoryTests
         var calendar = KeyboardFactory.GetCalendar(november);
         var inlineKeyboardButtons = calendar.InlineKeyboard.ToArray();
         inlineKeyboardButtons.Length.ShouldBe(7);
-        var lastWeek = inlineKeyboardButtons[6].ToArray();
+        var lastWeek = inlineKeyboardButtons[5].ToArray();
         lastWeek.Length.ShouldBe(7);
         lastWeek[6].Text.ShouldBe(KeyboardFactory.DATE_PLACEHOLDER);
         lastWeek[5].Text.ShouldBe("30");

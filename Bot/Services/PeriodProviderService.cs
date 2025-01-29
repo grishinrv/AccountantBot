@@ -26,8 +26,10 @@ public sealed class PeriodProviderService : IPeriodProviderService
 
     public void RegisterTransitions(Dictionary<string, Func<CommandContext, Task>> commandTransitions)
     {
-        commandTransitions.Add(KeyboardFactory.LEAF_OVER_LEFT_CALLBACK, MonthLeadOverLeft);
-        commandTransitions.Add(KeyboardFactory.LEAF_OVER_RIGHT_CALLBACK, MonthLeadOverRight);
+        commandTransitions.Add(KeyboardFactory.PREVIOUS_MONTH_CALLBACK, MonthLeafOverLeft);
+        commandTransitions.Add(KeyboardFactory.PREVIOUS_YEAR_CALLBACK, YearLeafOverLeft);
+        commandTransitions.Add(KeyboardFactory.NEXT_MONTH_CALLBACK, MonthLeafOverRight);
+        commandTransitions.Add(KeyboardFactory.NEXT_YEAR_CALLBACK, YearLeafOverRight);
     }
     
     public async Task PeriodStartPrompt(CommandContext context, DateOnly month)
@@ -101,7 +103,7 @@ public sealed class PeriodProviderService : IPeriodProviderService
         await SendCalendar(context, date, text);
     }
 
-    private async Task MonthLeadOverLeft(CommandContext context)
+    private async Task MonthLeafOverLeft(CommandContext context)
     {
         switch (CurrentState)
         {
@@ -115,8 +117,23 @@ public sealed class PeriodProviderService : IPeriodProviderService
                 throw new ArgumentOutOfRangeException();
         }
     }
+    
+    private async Task YearLeafOverLeft(CommandContext context)
+    {
+        switch (CurrentState)
+        {
+            case State.WaitingForStartProvided:
+                await PeriodStartPrompt(context, _currentMonth.AddYears(-1));
+                break;
+            case State.WaitingForEndProvided:
+                await PeriodEndPrompt(context, _currentMonth.AddYears(-1));
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+    }
 
-    private async Task MonthLeadOverRight(CommandContext context)
+    private async Task MonthLeafOverRight(CommandContext context)
     {
         switch (CurrentState)
         {
@@ -125,6 +142,21 @@ public sealed class PeriodProviderService : IPeriodProviderService
                 break;
             case State.WaitingForEndProvided:
                 await PeriodEndPrompt(context, _currentMonth.AddMonths(1));
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+    }
+    
+    private async Task YearLeafOverRight(CommandContext context)
+    {
+        switch (CurrentState)
+        {
+            case State.WaitingForStartProvided:
+                await PeriodStartPrompt(context, _currentMonth.AddYears(1));
+                break;
+            case State.WaitingForEndProvided:
+                await PeriodEndPrompt(context, _currentMonth.AddYears(1));
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

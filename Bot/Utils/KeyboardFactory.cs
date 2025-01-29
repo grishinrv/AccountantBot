@@ -5,8 +5,10 @@ namespace Bot.Utils;
 public static class KeyboardFactory
 {
     public const string DUMMY_CALLBACK = "-=-";
-    public const string LEAF_OVER_LEFT_CALLBACK = "<--";
-    public const string LEAF_OVER_RIGHT_CALLBACK = "-->";
+    public const string PREVIOUS_MONTH_CALLBACK = "<-";
+    public const string PREVIOUS_YEAR_CALLBACK = "<--";
+    public const string NEXT_MONTH_CALLBACK = "->";
+    public const string NEXT_YEAR_CALLBACK = "-->";
     public const string DATE_PLACEHOLDER = "--";
 
     private static int ToIndex(this DayOfWeek day)
@@ -75,8 +77,10 @@ public static class KeyboardFactory
 
     private static readonly InlineKeyboardButton[] ScrollButtons =
     [
-        new() { Text = LEAF_OVER_LEFT_CALLBACK, CallbackData = LEAF_OVER_LEFT_CALLBACK },
-        new() { Text = LEAF_OVER_RIGHT_CALLBACK, CallbackData = LEAF_OVER_RIGHT_CALLBACK }
+        new() { Text = PREVIOUS_YEAR_CALLBACK, CallbackData = PREVIOUS_YEAR_CALLBACK },
+        new() { Text = PREVIOUS_MONTH_CALLBACK, CallbackData = PREVIOUS_MONTH_CALLBACK },
+        new() { Text = NEXT_MONTH_CALLBACK, CallbackData = NEXT_MONTH_CALLBACK },
+        new() { Text = NEXT_YEAR_CALLBACK, CallbackData = NEXT_YEAR_CALLBACK }
     ];
     
     public static ReplyKeyboardMarkup Create(params KeyboardButton[] buttons)

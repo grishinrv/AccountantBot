@@ -75,17 +75,17 @@ public sealed class ListRecordsCommand : CommandBase
     private async Task ProcessPeriod(CommandContext context, Period period)
     {
         var purchasesByCategory = await GetRecords(period.Start, period.End);
-        var text = GetRecorsFormatted(purchasesByCategory, period.Start, period.End);
+        var text = GetRecordsFormatted(purchasesByCategory, period.Start, period.End);
         await Bot.SendMessage(
             chatId: context.ChatId,
             text: text,
             parseMode: ParseMode.Markdown);
     }
 
-    private static string GetRecorsFormatted(AmountByCategory[] purchasesByCategory, DateOnly periodStart, DateOnly periodEnd)
+    private static string GetRecordsFormatted(AmountByCategory[] purchasesByCategory, DateOnly periodStart, DateOnly periodEnd)
     {
         var total = purchasesByCategory.Sum(x => x.Amount);
-        var sb = new StringBuilder("Статистика c ")
+        var sb = new StringBuilder("Записи c ")
             .Append(periodStart.ToString("yyyy-MM-dd"))
             .Append(" по ")
             .Append(periodEnd.ToString("yyyy-MM-dd"))

@@ -35,17 +35,37 @@ public sealed class PeriodProviderService : IPeriodProviderService
         CurrentState = State.WaitingForStartProvided;
         var date = month;
         _currentMonth = date;
-        var sb = new StringBuilder("Välj startdatum för perioden:")
-            .AppendLine()
-            .Append(date.ToString("MMMM", CultureHelper.RussianCulture))
-            .Append(' ')
-            .Append(date.Year);
+        var text = string.Empty;
+        if (context.CallBackMessageId == null)
+        {
+            text = new StringBuilder("Välj startdatum för perioden:")
+                .AppendLine()
+                .Append(date.ToString("MMMM", CultureHelper.RussianCulture))
+                .Append(' ')
+                .Append(date.Year)
+                .ToString();
+        }
         
-        await _bot.SendMessage(
-            chatId: context.ChatId,
-            text: sb.ToString(),
-            parseMode: ParseMode.Html,
-            replyMarkup: KeyboardFactory.GetCalendar(date));
+        await SendCalendar(context, date, text);
+    }
+
+    private async Task SendCalendar(CommandContext context, DateOnly date, string text)
+    {
+        if (context.CallBackMessageId != null)
+        {
+            await _bot.EditMessageReplyMarkup(
+                chatId: context.ChatId,
+                messageId: context.CallBackMessageId.Value,
+                replyMarkup: KeyboardFactory.GetCalendar(date));
+        }
+        else
+        {
+            await _bot.SendMessage(
+                chatId: context.ChatId,
+                text: text,
+                parseMode: ParseMode.Html,
+                replyMarkup: KeyboardFactory.GetCalendar(date));
+        }
     }
 
     public async Task<Period?> HandlePeriodWorkflow(CommandContext context)
@@ -70,19 +90,20 @@ public sealed class PeriodProviderService : IPeriodProviderService
     private async Task PeriodEndPrompt(CommandContext context, DateOnly month)
     {
         CurrentState = State.WaitingForEndProvided;
-        var dateTime = month;
-        _currentMonth = dateTime;
-        var sb = new StringBuilder("Välj slutdatum för perioden:")
-            .AppendLine()
-            .Append(dateTime.ToString("MMMM", CultureHelper.RussianCulture)) 
-            .Append(' ')
-            .Append(dateTime.Year);
+        var date = month;
+        _currentMonth = date;
+        var text = string.Empty;
+        if (context.CallBackMessageId == null)
+        {
+            text = new StringBuilder("Välj slutdatum för perioden:")
+                .AppendLine()
+                .Append(date.ToString("MMMM", CultureHelper.RussianCulture)) 
+                .Append(' ')
+                .Append(date.Year)
+                .ToString();
+        }
         
-        await _bot.SendMessage(
-            chatId: context.ChatId,
-            text: sb.ToString(),
-            parseMode: ParseMode.Html,
-            replyMarkup: KeyboardFactory.GetCalendar(dateTime));
+        await SendCalendar(context, date, text);
     }
 
     private async Task MonthLeadOverLeft(CommandContext context)

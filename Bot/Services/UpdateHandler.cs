@@ -65,6 +65,7 @@ public sealed class UpdateHandler
             {
                 UserName = userName,
                 ChatId = callbackQuery.Message!.Chat.Id,
+                CallBackMessageId = callbackQuery.Message.Id,
                 LatestInputFromUser = callbackQuery.Data!
             });
         }

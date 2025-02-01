@@ -21,7 +21,7 @@ public sealed class ListRecordsCommand : CommandBase
         WaitingForFilter = 2
     }
     
-    public const string COMMAND_NAME = "visa_posta";
+    public const string COMMAND_NAME = "/visa_posta";
     public override string Name => COMMAND_NAME;
     private readonly ILogger<ListRecordsCommand> _logger;
     private readonly IPeriodProviderService _periodProvider;

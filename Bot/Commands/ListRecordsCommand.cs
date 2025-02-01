@@ -159,17 +159,26 @@ public sealed class ListRecordsCommand : CommandBase
         var end = periodEnd.AddDays(1).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
         while (start < end)
         {
-            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
             var currentStart = start;
-            var purchases = await dbContext.Purchases
-                .AsNoTracking()
-                .Where(x => x.Date >= currentStart && x.Date < end && x.Spent >= filter)
-                .Include(x => x.Category)
-                .ToListAsync();
-            purchases = purchases.OrderBy(x => x.Date).ToList();
-            yield return purchases;
+            var purchases = await GetPurchasesForDay(filter, currentStart);
             start = start.AddDays(1);
+            yield return purchases;
         }
+    }
+
+    private async Task<List<Purchase>> GetPurchasesForDay(
+        decimal filter, 
+        DateTime currentStart)
+    {
+        var currentEnd = currentStart.AddDays(1);
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+        var purchases = await dbContext.Purchases
+            .AsNoTracking()
+            .Where(x => x.Date >= currentStart && x.Date < currentEnd && x.Spent >= filter)
+            .Include(x => x.Category)
+            .ToListAsync();
+        purchases = purchases.OrderBy(x => x.Date).ToList();
+        return purchases;
     }
 
     private async Task PromptFilter(CommandContext context)

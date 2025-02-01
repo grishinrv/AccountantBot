@@ -118,7 +118,7 @@ public sealed class ListRecordsCommand : CommandBase
         Include fields)
     {
         var sb = new StringBuilder("Записи за ")
-            .AppendLine(purchasesByDate[0].Date.ToString("yyyy-MM-dd"))
+            .Append(purchasesByDate[0].Date.ToString("yyyy-MM-dd"))
             .Append(':')
             .AppendLine();
 
@@ -138,14 +138,16 @@ public sealed class ListRecordsCommand : CommandBase
             sb.Append(purchasesByDate[i].Spent.ToString("F"))
                 .Append("Є - ")
                 .Append(purchasesByDate[i].Category.Name)
-                .AppendLine();
+                .Append(", ");
 
             if (fields.HasFlag(Include.Comment))
             {
                 sb.Append(purchasesByDate[i].Comment)
-                    .Append(';')
-                    .AppendLine();
+                    .Append(", ");
+                   
             }
+            
+            sb.AppendLine();
         }
         
         var text = sb.ToString();

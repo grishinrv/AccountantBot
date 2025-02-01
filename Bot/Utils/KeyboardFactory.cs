@@ -11,6 +11,7 @@ public static class KeyboardFactory
     public const string NEXT_MONTH_CALLBACK = "->";
     public const string NEXT_YEAR_CALLBACK = "-->";
     public const string DATE_PLACEHOLDER = "--";
+    public const string CALLBACK_APPLY = "OK";
 
     private static int ToIndex(this DayOfWeek day)
     {
@@ -141,8 +142,28 @@ public static class KeyboardFactory
         return new InlineKeyboardMarkup(calendar);
     }
 
-    public static InlineKeyboardMarkup GetCheckBoxList(params CheckboxItemModel[] optionButtons)
+    private static readonly InlineKeyboardButton ButtonOk = new (){ Text = CALLBACK_APPLY, CallbackData = CALLBACK_APPLY };
+    
+    public static InlineKeyboardMarkup GetCheckBoxList(CheckboxItemModel[] optionButtons)
     {
+        var buttonRows = optionButtons
+            .Select(x => new InlineKeyboardButton
+                {
+                    Text = GetCheckBoxText(x),
+                    CallbackData = x.Callback,
+                    Pay = false
+                })
+            .Append(ButtonOk)
+            .Select((value, index) => new { value, index })
+            .GroupBy(x => x.index / 2)
+            .Select(g => g.Select(x => x.value).ToArray())
+            .ToList();
         
+        return new InlineKeyboardMarkup(buttonRows);
+    }
+
+    private static string GetCheckBoxText(CheckboxItemModel item)
+    {
+        return item.IsChecked ? item.DisplayName + "*" : item.DisplayName;
     }
 }

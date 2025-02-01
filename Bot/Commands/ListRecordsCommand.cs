@@ -2,6 +2,7 @@ using System.Text;
 using Bot.Models;
 using Bot.Services;
 using Bot.Storage;
+using Bot.Utils;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
@@ -22,20 +23,39 @@ public sealed class ListRecordsCommand : CommandBase
     
     public const string COMMAND_NAME = "visa_posta";
     public override string Name => COMMAND_NAME;
+    private readonly ILogger<ListRecordsCommand> _logger;
     private readonly IPeriodProviderService _periodProvider;
     private readonly IDbContextFactory<AccountantDbContext> _dbContextFactory;
+    private readonly IOptionsProviderService<Include> _includeOptionsProvider;
     private State CurrentState { get; set; } = State.WaitingForPeriod; 
     private Period? Period { get; set; }
+    private Include FieldsToInclude { get; set; } = Include.Default;
     
     public ListRecordsCommand(
+        ILogger<ListRecordsCommand> logger,
         IPeriodProviderService periodProvider,
+        IOptionsProviderService<Include> includeOptionsProvider,
         IDbContextFactory<AccountantDbContext> dbContextFactory,
         TelegramBotClient bot) 
         : base(bot)
     {
+        _logger = logger;
         _periodProvider = periodProvider;
+        _includeOptionsProvider = includeOptionsProvider;
         _dbContextFactory = dbContextFactory;
         _periodProvider.RegisterTransitions(Transitions);
+        _includeOptionsProvider.RegisterTransitions(Transitions);
+        _includeOptionsProvider.OptionsSelected += IncludeOptionsProviderOnOptionsSelected;
+    }
+
+    private void IncludeOptionsProviderOnOptionsSelected(object? sender, SelectedOptionsEventArgs<Include> e)
+    {
+        if (CurrentState == State.WaitingForFieldsToInclude)
+        {
+            FieldsToInclude = e.Options;
+            CurrentState = State.WaitingForFilter;
+            Task.Run(() => PromptFilter(e.Context));
+        }
     }
 
     protected override async Task OnInitializedAsync(CommandContext context)
@@ -49,23 +69,34 @@ public sealed class ListRecordsCommand : CommandBase
         {
             case State.WaitingForPeriod:
                 Period = await _periodProvider.HandlePeriodWorkflow(context);
-                if (Period != null)
-                {
-                    await ProcessPeriod(context, Period);
-                }
                 break;
             case State.WaitingForFieldsToInclude:
+                await _includeOptionsProvider.PromptOptions(context);
                 break;
             case State.WaitingForFilter:
+                if (decimal.TryParse(context.LatestInputFromUser, out var filter))
+                {
+                    CurrentState = State.WaitingForPeriod;
+                    await ProcessPeriodFilter(context, FieldsToInclude, Period!, filter);
+                    Period = null;
+                }
+                else
+                {
+                    await PromptFilter(context);
+                }
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
     }
 
-    private async Task ProcessPeriod(CommandContext context, Period period)
+    private async Task ProcessPeriodFilter(
+        CommandContext context, 
+        Include fields,
+        Period period, 
+        decimal filterValue)
     {
-        var purchasesByCategory = await GetRecords(period.Start, period.End);
+        var purchasesByCategory = await GetRecords(fields, period.Start, period.End, filterValue);
         var text = GetRecordsFormatted(purchasesByCategory, period.Start, period.End);
         await Bot.SendMessage(
             chatId: context.ChatId,
@@ -112,7 +143,7 @@ public sealed class ListRecordsCommand : CommandBase
         return text;
     }
 
-    private async Task<AmountByCategory[]> GetRecords(DateOnly periodStart, DateOnly periodEnd)
+    private async Task<AmountByCategory[]> GetRecords(Include fields, DateOnly periodStart, DateOnly periodEnd, decimal filter)
     {
         var start = periodStart.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
         var end = periodEnd.AddDays(1).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
@@ -130,5 +161,19 @@ public sealed class ListRecordsCommand : CommandBase
         
         purchasesByCategory = purchasesByCategory.OrderByDescending(x => x.Amount).ToArray();
         return purchasesByCategory;
+    }
+
+    private async Task PromptFilter(CommandContext context)
+    {
+        try
+        {
+            await Bot.SendMessage(
+                chatId: context.ChatId,
+                text: "Ange minimibeloppet för filtrering:");
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Failed to prompt filter");
+        }
     }
 }

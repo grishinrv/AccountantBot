@@ -50,7 +50,7 @@ public sealed class ListRecordsCommand : CommandBase
 
     private void IncludeOptionsProviderOnOptionsSelected(object? sender, SelectedOptionsEventArgs<Include> e)
     {
-        _logger.LogInformation("Selected Include Options: {Options}, state: {State}", e.Options, CurrentState);
+        _logger.LogDebug("Selected Include Options: {Options}, state: {State}", e.Options, CurrentState);
         if (CurrentState == State.WaitingForFieldsToInclude)
         {
             FieldsToInclude = e.Options;
@@ -74,7 +74,6 @@ public sealed class ListRecordsCommand : CommandBase
                 break;
             case State.WaitingForFieldsToInclude:
                 await _includeOptionsProvider.PromptOptions(context);
-                CurrentState = State.WaitingForFilter;
                 break;
             case State.WaitingForFilter:
                 if (decimal.TryParse(context.LatestInputFromUser, out var filter))

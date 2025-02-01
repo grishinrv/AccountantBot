@@ -71,6 +71,7 @@ public sealed class ListRecordsCommand : CommandBase
                 if (Period != null)
                 {
                     CurrentState = State.WaitingForFieldsToInclude;
+                    await _includeOptionsProvider.PromptOptions(context);
                 }
                 break;
             case State.WaitingForFieldsToInclude:

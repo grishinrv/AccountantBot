@@ -124,6 +124,7 @@ public sealed class ListRecordsCommand : CommandBase
 
         for (var i = 1; i < purchasesByDate.Count; i++)
         {
+            sb.Append("--");
             if (fields.HasFlag(Include.User))
             {
                 sb.Append(purchasesByDate[i].User)

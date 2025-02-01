@@ -78,8 +78,9 @@ public sealed class ListRecordsCommand : CommandBase
             case State.WaitingForFilter:
                 if (decimal.TryParse(context.LatestInputFromUser, out var filter))
                 {
-                    CurrentState = State.WaitingForPeriod;
+                    _logger.LogDebug("Period start: {Start}, end: {End}", Period?.Start, Period?.End);
                     await ProcessPeriodFilter(context, FieldsToInclude, Period!, filter);
+                    CurrentState = State.WaitingForPeriod;
                     Period = null;
                 }
                 else

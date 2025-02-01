@@ -140,11 +140,10 @@ public sealed class ListRecordsCommand : CommandBase
                 .Append(purchasesByDate[i].Category.Name)
                 .Append(", ");
 
-            if (fields.HasFlag(Include.Comment))
+            if (fields.HasFlag(Include.Comment) && !string.IsNullOrWhiteSpace(purchasesByDate[i].Comment))
             {
                 sb.Append(purchasesByDate[i].Comment)
                     .Append(", ");
-                   
             }
             
             sb.AppendLine();

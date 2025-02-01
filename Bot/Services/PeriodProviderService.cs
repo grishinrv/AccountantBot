@@ -14,13 +14,15 @@ public sealed class PeriodProviderService : IPeriodProviderService
         WaitingForEndProvided = 1
     }
     
+    private readonly ILogger<PeriodProviderService> _logger;
     private readonly TelegramBotClient _bot;
     private DateOnly? _periodStartDate;
     private DateOnly _currentMonth;
     private State CurrentState { get; set; } = State.WaitingForStartProvided;
     
-    public PeriodProviderService(TelegramBotClient bot)
+    public PeriodProviderService(ILogger<PeriodProviderService> logger, TelegramBotClient bot)
     {
+        _logger = logger;
         _bot = bot;
     }
 
@@ -178,8 +180,10 @@ public sealed class PeriodProviderService : IPeriodProviderService
 
     private async Task<Period?> AnalyzePeriodEndInput(CommandContext context)
     {
+        _logger.LogDebug("Parsing period end: {Input}", context.LatestInputFromUser);
         if (DateOnly.TryParse(context.LatestInputFromUser, out var day))
         {
+            _logger.LogDebug("Parsed period end: {Day}", day);
             return new Period
             {
                 Start = _periodStartDate!.Value,

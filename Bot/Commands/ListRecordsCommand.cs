@@ -69,9 +69,11 @@ public sealed class ListRecordsCommand : CommandBase
         {
             case State.WaitingForPeriod:
                 Period = await _periodProvider.HandlePeriodWorkflow(context);
+                CurrentState = State.WaitingForFieldsToInclude;
                 break;
             case State.WaitingForFieldsToInclude:
                 await _includeOptionsProvider.PromptOptions(context);
+                CurrentState = State.WaitingForFilter;
                 break;
             case State.WaitingForFilter:
                 if (decimal.TryParse(context.LatestInputFromUser, out var filter))

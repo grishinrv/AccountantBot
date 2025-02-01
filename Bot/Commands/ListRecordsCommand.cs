@@ -50,6 +50,7 @@ public sealed class ListRecordsCommand : CommandBase
 
     private void IncludeOptionsProviderOnOptionsSelected(object? sender, SelectedOptionsEventArgs<Include> e)
     {
+        _logger.LogInformation("Selected Include Options: {Options}", e.Options);
         if (CurrentState == State.WaitingForFieldsToInclude)
         {
             FieldsToInclude = e.Options;

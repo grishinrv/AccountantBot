@@ -181,13 +181,13 @@ public sealed class PeriodProviderService : IPeriodProviderService
     private async Task<Period?> AnalyzePeriodEndInput(CommandContext context)
     {
         _logger.LogDebug("Parsing period end: {Input}", context.LatestInputFromUser);
-        if (DateOnly.TryParse(context.LatestInputFromUser, out var day))
+        if (DateTime.TryParse(context.LatestInputFromUser, out var day))
         {
             _logger.LogDebug("Parsed period end: {Day}", day);
             return new Period
             {
                 Start = _periodStartDate!.Value,
-                End = day
+                End = DateOnly.FromDateTime(day)
             };
         }
         await PeriodEndPrompt(context, _currentMonth);

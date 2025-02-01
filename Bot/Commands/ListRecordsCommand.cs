@@ -70,7 +70,10 @@ public sealed class ListRecordsCommand : CommandBase
         {
             case State.WaitingForPeriod:
                 Period = await _periodProvider.HandlePeriodWorkflow(context);
-                CurrentState = State.WaitingForFieldsToInclude;
+                if (Period != null)
+                {
+                    CurrentState = State.WaitingForFieldsToInclude;
+                }
                 break;
             case State.WaitingForFieldsToInclude:
                 await _includeOptionsProvider.PromptOptions(context);

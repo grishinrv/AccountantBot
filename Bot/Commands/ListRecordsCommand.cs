@@ -2,10 +2,8 @@ using System.Text;
 using Bot.Models;
 using Bot.Services;
 using Bot.Storage;
-using Bot.Utils;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
-using Telegram.Bot.Types.Enums;
 
 namespace Bot.Commands;
 
@@ -104,7 +102,7 @@ public sealed class ListRecordsCommand : CommandBase
     {
         await foreach (var purchasesByDate in GetRecordsEnumeratedByDay(period.Start, period.End, filterValue))
         {
-            if (purchasesByDate.Length > 0)
+            if (purchasesByDate.Count > 0)
             {
                 var text = GetRecordsFormatted(purchasesByDate, fields);
                 await Bot.SendMessage(
@@ -115,13 +113,15 @@ public sealed class ListRecordsCommand : CommandBase
     }
 
     private static string GetRecordsFormatted(
-        Purchase[] purchasesByDate,
+        List<Purchase> purchasesByDate,
         Include fields)
     {
         var sb = new StringBuilder("Записи за ")
-            .AppendLine(purchasesByDate[0].Date.ToString("yyyy-MM-dd"));
+            .AppendLine(purchasesByDate[0].Date.ToString("yyyy-MM-dd"))
+            .Append(':')
+            .AppendLine();
 
-        for (var i = 1; i < purchasesByDate.Length; i++)
+        for (var i = 1; i < purchasesByDate.Count; i++)
         {
             if (fields.HasFlag(Include.User))
             {
@@ -142,7 +142,8 @@ public sealed class ListRecordsCommand : CommandBase
             if (fields.HasFlag(Include.Comment))
             {
                 sb.Append(purchasesByDate[i].Comment)
-                    .AppendLine(";");
+                    .Append(';')
+                    .AppendLine();
             }
         }
         
@@ -150,7 +151,7 @@ public sealed class ListRecordsCommand : CommandBase
         return text;
     }
 
-    private async IAsyncEnumerable<Purchase[]> GetRecordsEnumeratedByDay(DateOnly periodStart, DateOnly periodEnd, decimal filter)
+    private async IAsyncEnumerable<List<Purchase>> GetRecordsEnumeratedByDay(DateOnly periodStart, DateOnly periodEnd, decimal filter)
     {
         var start = periodStart.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
         var end = periodEnd.AddDays(1).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
@@ -158,11 +159,13 @@ public sealed class ListRecordsCommand : CommandBase
         {
             await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
             var currentStart = start;
-            yield return await dbContext.Purchases
+            var purchases = await dbContext.Purchases
                 .AsNoTracking()
                 .Where(x => x.Date >= currentStart && x.Date < end && x.Spent >= filter)
                 .Include(x => x.Category)
-                .ToArrayAsync();
+                .ToListAsync();
+            purchases = purchases.OrderBy(x => x.Date).ToList();
+            yield return purchases;
             start = start.AddDays(1);
         }
     }

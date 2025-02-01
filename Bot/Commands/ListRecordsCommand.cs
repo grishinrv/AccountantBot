@@ -96,71 +96,69 @@ public sealed class ListRecordsCommand : CommandBase
         Period period, 
         decimal filterValue)
     {
-        var purchasesByCategory = await GetRecords(fields, period.Start, period.End, filterValue);
-        var text = GetRecordsFormatted(purchasesByCategory, period.Start, period.End);
-        await Bot.SendMessage(
-            chatId: context.ChatId,
-            text: text,
-            parseMode: ParseMode.Markdown);
+        await foreach (var purchasesByDate in GetRecordsEnumeratedByDay(period.Start, period.End, filterValue))
+        {
+            if (purchasesByDate.Length > 0)
+            {
+                var text = GetRecordsFormatted(purchasesByDate, fields);
+                await Bot.SendMessage(
+                    chatId: context.ChatId,
+                    text: text);
+            }
+        }
     }
 
-    private static string GetRecordsFormatted(AmountByCategory[] purchasesByCategory, DateOnly periodStart, DateOnly periodEnd)
+    private static string GetRecordsFormatted(
+        Purchase[] purchasesByDate,
+        Include fields)
     {
-        var total = purchasesByCategory.Sum(x => x.Amount);
-        var sb = new StringBuilder("Записи c ")
-            .Append(periodStart.ToString("yyyy-MM-dd"))
-            .Append(" по ")
-            .Append(periodEnd.ToString("yyyy-MM-dd"))
-            .Append(" - всего ")
-            .Append(total.ToString("F"))
-            .Append('Є')
-            .AppendLine()
-            .AppendLine();
-        
-        foreach (var item in purchasesByCategory)
-        {
-            var percentage = (double)(item.Amount / total * 100);
-            var barLength = (int)(percentage / 4);
-          
-            sb.Append(item.Name)
-                .Append(": ")
-                .Append(item.Amount)
-                .AppendLine("Є")
-                .Append('(')
-                .Append(percentage.ToString("F2"))
-                .Append("%)")
-                .AppendLine();
-            
-            for (var i = 0; i < barLength; i++)
-            {
-                sb.Append('■');
-            }
-            
-            sb.AppendLine();
-        }
+        var sb = new StringBuilder("Записи за ")
+            .AppendLine(purchasesByDate[0].Date.ToString("yyyy-MM-dd"));
 
+        for (var i = 1; i < purchasesByDate.Length; i++)
+        {
+            if (fields.HasFlag(Include.User))
+            {
+                sb.Append(purchasesByDate[i].User)
+                    .Append(", ");
+            }
+            if (fields.HasFlag(Include.Time))
+            {
+                sb.Append(purchasesByDate[i].Date.ToString("HH:mm"))
+                    .Append(", ");
+            }
+
+            sb.Append(purchasesByDate[i].Spent.ToString("F"))
+                .Append("Є - ")
+                .Append(purchasesByDate[i].Category.Name)
+                .AppendLine();
+
+            if (fields.HasFlag(Include.Comment))
+            {
+                sb.Append(purchasesByDate[i].Comment)
+                    .AppendLine(";");
+            }
+        }
+        
         var text = sb.ToString();
         return text;
     }
 
-    private async Task<AmountByCategory[]> GetRecords(Include fields, DateOnly periodStart, DateOnly periodEnd, decimal filter)
+    private async IAsyncEnumerable<Purchase[]> GetRecordsEnumeratedByDay(DateOnly periodStart, DateOnly periodEnd, decimal filter)
     {
         var start = periodStart.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
         var end = periodEnd.AddDays(1).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
-        await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
-        var purchasesByCategory = await dbContext.Purchases
-            .AsNoTracking()
-            .Where(x => x.Date >= start && x.Date < end)
-            .GroupBy(x => x.Category.Name)
-            .Select(g => new AmountByCategory
-            {
-                Name = g.Key, 
-                Amount = g.Sum(p => p.Spent)
-            })
-            .ToArrayAsync();
-        
-        purchasesByCategory = purchasesByCategory.OrderByDescending(x => x.Amount).ToArray();
-        return purchasesByCategory;
+        while (start < end)
+        {
+            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+            var currentStart = start;
+            yield return await dbContext.Purchases
+                .AsNoTracking()
+                .Where(x => x.Date >= currentStart && x.Date < end && x.Spent >= filter)
+                .Include(x => x.Category)
+                .ToArrayAsync();
+            start = start.AddDays(1);
+        }
     }
 
     private async Task PromptFilter(CommandContext context)

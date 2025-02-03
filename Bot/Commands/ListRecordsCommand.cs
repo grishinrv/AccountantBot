@@ -122,7 +122,7 @@ public sealed class ListRecordsCommand : CommandBase
             .Append(':')
             .AppendLine();
 
-        for (var i = 1; i < purchasesByDate.Count; i++)
+        for (var i = 0; i < purchasesByDate.Count; i++)
         {
             sb.Append("--");
             if (fields.HasFlag(Include.User))

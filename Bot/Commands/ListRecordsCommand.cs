@@ -157,8 +157,8 @@ public sealed class ListRecordsCommand : CommandBase
     private async IAsyncEnumerable<List<Purchase>> GetRecordsEnumeratedByDay(DateOnly periodStart, DateOnly periodEnd, decimal filter)
     {
         var start = periodStart.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
-        var end = periodEnd.AddDays(1).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
-        while (start < end)
+        var end = periodEnd.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+        while (start <= end)
         {
             var currentStart = start;
             var purchases = await GetPurchasesForDay(filter, currentStart);

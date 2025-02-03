@@ -162,7 +162,7 @@ public sealed class NewRecordCommand : CommandBase
 
     private async Task SaveRecord(CommandContext context)
     {
-        using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
         dbContext.Purchases.Add(_purchase!);
         await dbContext.SaveChangesAsync();
         State = NewRecordCommandState.WaitingForCategory;

@@ -5,6 +5,7 @@ using Bot.Settings;
 using Bot.Storage;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
+using Telegram.Bot.AspNetCore;
 
 namespace Bot;
 

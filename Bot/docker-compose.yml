@@ -10,6 +10,9 @@ services:
     restart: unless-stopped
     networks:
       - proxy_bot-network
+    dns:
+      - 4.4.4.4
+      - 8.8.8.8
     volumes:
       - ./accountant.db:/app/accountant.db
       - ./appsettings.json:/app/appsettings.json

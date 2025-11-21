@@ -14,14 +14,7 @@ namespace Bot.Commands;
 /// </summary>
 public sealed class NewRecordCommand : CommandBase
 {
-    enum NewRecordCommandState
-    {
-        WaitingForCategory = 0,
-        WaitingForAmount = 1,
-        WaitingForComment = 2
-    }
-    
-    private NewRecordCommandState State { get; set; } = NewRecordCommandState.WaitingForCategory;
+    private RecordCommandState State { get; set; } = RecordCommandState.WaitingForCategory;
     private Purchase? _purchase;
     
     public const string COMMAND_NAME =  "/ny_post";
@@ -66,7 +59,7 @@ public sealed class NewRecordCommand : CommandBase
     
     private async Task NewRecordPrompt(CommandContext context)
     {
-        State = NewRecordCommandState.WaitingForCategory;
+        State = RecordCommandState.WaitingForCategory;
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
         var categories = await dbContext.Categories.AsNoTracking().ToArrayAsync();
         var buttons = categories
@@ -99,13 +92,13 @@ public sealed class NewRecordCommand : CommandBase
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
         switch (State)
         {
-            case NewRecordCommandState.WaitingForCategory:
+            case RecordCommandState.WaitingForCategory:
                 await AssignCategoryWorkflow(context);
                 break;
-            case NewRecordCommandState.WaitingForAmount:
+            case RecordCommandState.WaitingForAmount:
                 await AssignAmountWorkflow(context);
                 break;
-            case NewRecordCommandState.WaitingForComment:
+            case RecordCommandState.WaitingForComment:
                 await AssignCommentWorkflow(context);
                 break;
             default:
@@ -117,7 +110,7 @@ public sealed class NewRecordCommand : CommandBase
     {
         if (TrySetCategoryId(_purchase!, context.LatestInputFromUser, out var selectedCategoryName))
         {
-            State = NewRecordCommandState.WaitingForAmount;
+            State = RecordCommandState.WaitingForAmount;
             await Bot.SendMessage(
                 chatId: context.ChatId,
                 text: $"Kategori \"{selectedCategoryName}\" vald. Кange beloppet:",
@@ -136,7 +129,7 @@ public sealed class NewRecordCommand : CommandBase
         if (decimal.TryParse(context.LatestInputFromUser, out var amount))
         {
             _purchase!.Spent = amount;
-            State = NewRecordCommandState.WaitingForComment;
+            State = RecordCommandState.WaitingForComment;
             await Bot.SendMessage(
                 chatId: context.ChatId,
                 text: $"Beloppet \"{amount}\" har sparats, eventuella kommentarer?",
@@ -165,7 +158,7 @@ public sealed class NewRecordCommand : CommandBase
         await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
         dbContext.Purchases.Add(_purchase!);
         await dbContext.SaveChangesAsync();
-        State = NewRecordCommandState.WaitingForCategory;
+        State = RecordCommandState.WaitingForCategory;
         await Bot.SendMessage(
             chatId: context.ChatId,
             text: "Posten har sparats",

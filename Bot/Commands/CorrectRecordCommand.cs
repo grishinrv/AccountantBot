@@ -80,13 +80,12 @@ public sealed class CorrectRecordCommand : CommandBase
                 {
                     _logger.LogDebug("Period start: {Start}, end: {End}", Period?.Start, Period?.End);
                     await ProcessPeriodFilter(context, FieldsToInclude, Period!, filter);
-                    CurrentState = CorrectRecordCommandState.WaitingForPeriod;
+                    CurrentState = CorrectRecordCommandState.WaitingForId;
                     Period = null;
                 }
                 else
                 {
                     await PromptFilter(context);
-                    CurrentState = CorrectRecordCommandState.WaitingForId;
                 }
                 break;
             case CorrectRecordCommandState.WaitingForId:

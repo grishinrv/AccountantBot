@@ -144,7 +144,7 @@ public sealed class CorrectRecordCommand : CommandBase
         for (var i = 0; i < purchasesByDate.Count; i++)
         {
             sb
-                .Append("--")
+                .Append("-- id: ")
                 .Append(purchasesByDate[i].Id)
                 .Append(", ");
             

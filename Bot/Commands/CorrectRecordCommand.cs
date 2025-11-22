@@ -80,7 +80,6 @@ public sealed class CorrectRecordCommand : CommandBase
                 {
                     _logger.LogDebug("Period start: {Start}, end: {End}", Period?.Start, Period?.End);
                     await ProcessPeriodFilter(context, FieldsToInclude, Period!, filter);
-                    CurrentState = CorrectRecordCommandState.WaitingForId;
                     Period = null;
                 }
                 else
@@ -130,10 +129,10 @@ public sealed class CorrectRecordCommand : CommandBase
                     text: text);
             }
         }
-        
+        CurrentState = CorrectRecordCommandState.WaitingForId;
         await Bot.SendMessage(
             chatId: context.ChatId,
-            text: "Skriva in ID");
+            text: "Skriva in ID:");
     }
 
     private static string GetRecordsFormatted(
@@ -291,7 +290,8 @@ public sealed class CorrectRecordCommand : CommandBase
             await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
             dbContext.Purchases.Update(EditedPurchase);
             await dbContext.SaveChangesAsync();
-            CurrentState = CorrectRecordCommandState.WaitingForCategory;
+            EditedPurchase = null;
+            CurrentState = CorrectRecordCommandState.WaitingForPeriod;
             await Bot.SendMessage(
                 chatId: context.ChatId,
                 text: "Posten har sparats",

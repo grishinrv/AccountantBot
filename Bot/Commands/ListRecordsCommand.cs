@@ -18,7 +18,7 @@ public sealed class ListRecordsCommand : CommandBase
     private readonly IPeriodProviderService _periodProvider;
     private readonly IDbContextFactory<AccountantDbContext> _dbContextFactory;
     private readonly IOptionsProviderService<Include> _includeOptionsProvider;
-    private State CurrentState { get; set; } = State.WaitingForPeriod; 
+    private ListRecordsCommandState CurrentState { get; set; } = ListRecordsCommandState.WaitingForPeriod; 
     private Period? Period { get; set; }
     private Include FieldsToInclude { get; set; } = Include.Default;
     
@@ -42,10 +42,10 @@ public sealed class ListRecordsCommand : CommandBase
     private void IncludeOptionsProviderOnOptionsSelected(object? sender, SelectedOptionsEventArgs<Include> e)
     {
         _logger.LogDebug("Selected Include Options: {Options}, state: {State}", e.Options, CurrentState);
-        if (CurrentState == State.WaitingForFieldsToInclude)
+        if (CurrentState == ListRecordsCommandState.WaitingForFieldsToInclude)
         {
             FieldsToInclude = e.Options;
-            CurrentState = State.WaitingForFilter;
+            CurrentState = ListRecordsCommandState.WaitingForFilter;
             Task.Run(() => PromptFilter(e.Context));
         }
     }
@@ -59,23 +59,23 @@ public sealed class ListRecordsCommand : CommandBase
     {
         switch (CurrentState)
         {
-            case State.WaitingForPeriod:
+            case ListRecordsCommandState.WaitingForPeriod:
                 Period = await _periodProvider.HandlePeriodWorkflow(context);
                 if (Period != null)
                 {
-                    CurrentState = State.WaitingForFieldsToInclude;
+                    CurrentState = ListRecordsCommandState.WaitingForFieldsToInclude;
                     await _includeOptionsProvider.PromptOptions(context);
                 }
                 break;
-            case State.WaitingForFieldsToInclude:
+            case ListRecordsCommandState.WaitingForFieldsToInclude:
                 await _includeOptionsProvider.PromptOptions(context);
                 break;
-            case State.WaitingForFilter:
+            case ListRecordsCommandState.WaitingForFilter:
                 if (decimal.TryParse(context.LatestInputFromUser, out var filter))
                 {
                     _logger.LogDebug("Period start: {Start}, end: {End}", Period?.Start, Period?.End);
                     await ProcessPeriodFilter(context, FieldsToInclude, Period!, filter);
-                    CurrentState = State.WaitingForPeriod;
+                    CurrentState = ListRecordsCommandState.WaitingForPeriod;
                     Period = null;
                 }
                 else

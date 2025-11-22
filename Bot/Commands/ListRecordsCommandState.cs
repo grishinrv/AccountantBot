@@ -1,6 +1,6 @@
 namespace Bot.Commands;
 
-public enum State
+public enum ListRecordsCommandState
 {
     WaitingForPeriod = 0,
     WaitingForFieldsToInclude = 1,

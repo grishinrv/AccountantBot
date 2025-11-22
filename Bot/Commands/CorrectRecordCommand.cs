@@ -130,6 +130,11 @@ public sealed class CorrectRecordCommand : CommandBase
                     text: text);
             }
         }
+        
+        await Bot.SendMessage(
+            chatId: context.ChatId,
+            text: "Skriva in ID");
+        CurrentState = CorrectRecordCommandState.WaitingForId;
     }
 
     private static string GetRecordsFormatted(

@@ -12,13 +12,6 @@ namespace Bot.Commands;
 /// </summary>
 public sealed class ListRecordsCommand : CommandBase
 {
-    enum State
-    {
-        WaitingForPeriod = 0,
-        WaitingForFieldsToInclude = 1,
-        WaitingForFilter = 2
-    }
-    
     public const string COMMAND_NAME = "/visa_posta";
     public override string Name => COMMAND_NAME;
     private readonly ILogger<ListRecordsCommand> _logger;

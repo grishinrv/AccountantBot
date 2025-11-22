@@ -96,6 +96,7 @@ public sealed class CorrectRecordCommand : CommandBase
                     EditedPurchase = dbContext.Purchases.AsNoTracking().FirstOrDefault(x => x.Id == pickedId);
                     if (EditedPurchase != null)
                     {
+                        _logger.LogDebug("Load purchase entity: {Id}, spent: {Spent}", EditedPurchase.Id, EditedPurchase.Spent);
                         CurrentState = CorrectRecordCommandState.WaitingForCategory;
                     }
                 }
@@ -134,7 +135,6 @@ public sealed class CorrectRecordCommand : CommandBase
         await Bot.SendMessage(
             chatId: context.ChatId,
             text: "Skriva in ID");
-        CurrentState = CorrectRecordCommandState.WaitingForId;
     }
 
     private static string GetRecordsFormatted(

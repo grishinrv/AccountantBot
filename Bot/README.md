@@ -1,1 +1,1 @@
-docker build -t acc/bot:telegram .
+docker build ./ -t acc/bot:telegram .
